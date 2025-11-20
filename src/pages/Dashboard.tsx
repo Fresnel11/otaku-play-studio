@@ -1,154 +1,157 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import FunButton from "@/components/FunButton";
-import FunCard from "@/components/FunCard";
-// import Mascot3D from "@/components/Mascot3D";
-import { Gamepad2, Trophy, Star, Zap, LogOut } from "lucide-react";
+import { Trophy, Star, Zap, Flame, Users, Play } from "lucide-react";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import StatCard from "@/components/dashboard/StatCard";
+import ActivityFeed from "@/components/dashboard/ActivityFeed";
+import { GlassButton } from "@/components/ui/GlassButton";
+import mascotWelcome from "@/assets/mascott/Gemini_Generated_Image_suo6ctsuo6ctsuo6-removebg-preview.png";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const username = "SuperOtaku";
 
   const stats = [
-    { label: "Parties jouées", value: "42", icon: Gamepad2, color: "primary" },
-    { label: "Score total", value: "8,520", icon: Trophy, color: "accent" },
-    { label: "Niveau", value: "Otaku Senpai", icon: Star, color: "secondary" },
+    { label: "Niveau", value: "5", icon: Star, color: "indigo", trend: "20% XP", trendUp: true },
+    { label: "Parties jouées", value: "42", icon: Zap, color: "purple", trend: "12 cette semaine", trendUp: true },
+    { label: "Victoires", value: "28", icon: Trophy, color: "pink", trend: "66% Win Rate", trendUp: true },
+    { label: "Amis", value: "15", icon: Users, color: "blue", trend: "3 en ligne", trendUp: true },
   ];
 
-  const games = [
+  const recommendedGames = [
     {
-      title: "Quiz Anime Rapide",
-      description: "Teste tes connaissances !",
-      icon: Zap,
+      title: "Anime Quiz",
+      category: "Quiz",
+      players: "1.2k",
+      image: "bg-gradient-to-br from-indigo-500/20 to-purple-600/20 grayscale hover:grayscale-0",
       action: () => navigate("/quiz"),
-      color: "primary",
     },
     {
       title: "Memory Kawaii",
-      description: "Trouve les paires",
-      icon: Gamepad2,
+      category: "Puzzle",
+      players: "850",
+      image: "bg-gradient-to-br from-pink-500/20 to-rose-600/20 grayscale hover:grayscale-0",
       action: () => alert("Bientôt disponible !"),
-      color: "secondary",
     },
     {
-      title: "Classement",
-      description: "Top des joueurs",
-      icon: Trophy,
+      title: "Battle Royale",
+      category: "Action",
+      players: "2.5k",
+      image: "bg-gradient-to-br from-orange-500/20 to-red-600/20 grayscale hover:grayscale-0",
       action: () => alert("Bientôt disponible !"),
-      color: "accent",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/10 overflow-hidden">
-      {/* Background effects */}
-      <motion.div
-        className="absolute top-20 right-20 w-40 h-40 bg-primary/20 rounded-full blur-3xl"
-        animate={{ scale: [1, 1.2, 1], rotate: 360 }}
-        transition={{ duration: 10, repeat: Infinity }}
-      />
-      <motion.div
-        className="absolute bottom-20 left-20 w-32 h-32 bg-accent/20 rounded-full blur-3xl"
-        animate={{ scale: [1.2, 1, 1.2] }}
-        transition={{ duration: 8, repeat: Infinity }}
-      />
-
-      <div className="container mx-auto px-4 py-8 relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-center mb-12"
-        >
-          <div>
-            <h1 className="text-4xl font-heading font-bold mb-2">
-              Bienvenue, {username} ! 👋
-            </h1>
-            <p className="text-muted-foreground">Prêt à jouer aujourd'hui ?</p>
-          </div>
-          <FunButton variant="secondary" size="sm" onClick={() => navigate("/")}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Déconnexion
-          </FunButton>
-        </motion.div>
-
-        {/* Stats Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="grid md:grid-cols-3 gap-6 mb-12"
-        >
-          {stats.map((stat, index) => (
+    <DashboardLayout>
+      {/* Hero Section */}
+      <div className="relative rounded-3xl border border-white/10 bg-white/[0.02] p-8 mb-8 overflow-hidden backdrop-blur-md">
+        <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent opacity-50" />
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="max-w-xl">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-4xl font-heading font-bold text-white mb-4"
+            >
+              Bon retour, {username} ! 👋
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-white/60 text-lg mb-6"
+            >
+              Tu as 3 défis quotidiens en attente. Prêt à montrer qui est le meilleur ?
+            </motion.p>
             <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 + index * 0.1 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
             >
-              <FunCard
-                glow={stat.color as "primary" | "secondary" | "accent"}
-                className="text-center"
-              >
-                <stat.icon className="h-12 w-12 mx-auto mb-4 text-primary animate-bounce-soft" />
-                <h3 className="text-3xl font-heading font-bold mb-2">{stat.value}</h3>
-                <p className="text-muted-foreground">{stat.label}</p>
-              </FunCard>
+              <GlassButton onClick={() => navigate("/games")} className="bg-white text-black hover:bg-white/90 border-none">
+                <Play className="mr-2 h-4 w-4 fill-current" />
+                Jouer maintenant
+              </GlassButton>
             </motion.div>
-          ))}
-        </motion.div>
+          </div>
 
-        {/* Main Content */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Games Section */}
-          <div className="lg:col-span-2">
-            <motion.h2
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-3xl font-heading font-bold mb-6"
-            >
-              Jeux disponibles 🎮
-            </motion.h2>
+          {/* Mascot Image */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, x: 50 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="hidden lg:block absolute right-0 bottom-[-20px] h-[120%] opacity-80 grayscale-[30%] hover:grayscale-0 transition-all duration-500"
+          >
+            <img
+              src={mascotWelcome}
+              alt="Mascot"
+              className="h-full object-contain drop-shadow-2xl"
+            />
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {stats.map((stat, index) => (
+          <StatCard key={stat.label} {...stat} delay={index * 0.1} color={stat.color as any} />
+        ))}
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Left Column: Recommended Games */}
+        <div className="lg:col-span-2 space-y-8">
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-heading font-bold text-white flex items-center gap-2">
+                <Flame className="h-8 w-8 text-orange-500 fill-orange-500/20 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
+                Jeux Recommandés
+              </h2>
+              <button
+                onClick={() => navigate("/games")}
+                className="text-sm text-white/50 hover:text-white transition-colors"
+              >
+                Voir tout
+              </button>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-6">
-              {games.map((game, index) => (
+              {recommendedGames.map((game, index) => (
                 <motion.div
                   key={game.title}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + index * 0.1 }}
+                  transition={{ delay: 0.4 + index * 0.1 }}
+                  className="group relative aspect-video rounded-2xl overflow-hidden cursor-pointer border border-white/10"
+                  onClick={game.action}
                 >
-                  <FunCard
-                    glow={game.color as "primary" | "secondary" | "accent"}
-                    className="cursor-pointer h-full group hover:border-primary/50 transition-colors"
-                    onClick={game.action}
-                  >
-                    <game.icon className="h-10 w-10 mb-4 text-primary group-hover:animate-wiggle" />
-                    <h3 className="text-xl font-heading font-bold mb-2">{game.title}</h3>
-                    <p className="text-muted-foreground mb-4">{game.description}</p>
-                    <FunButton variant={game.color as "primary" | "secondary" | "accent"} size="sm">
-                      Jouer
-                    </FunButton>
-                  </FunCard>
+                  <div className={`absolute inset-0 bg-gradient-to-br from-white/10 to-black/50 transition-transform duration-500 group-hover:scale-110`} />
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-300" />
+
+                  <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                      <span className="inline-block px-2 py-1 rounded-md bg-white/10 backdrop-blur-md text-xs font-medium text-white mb-2 border border-white/10">
+                        {game.category}
+                      </span>
+                      <h3 className="text-xl font-bold text-white mb-1">{game.title}</h3>
+                      <p className="text-white/70 text-sm flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                        <Users className="h-3 w-3" /> {game.players} joueurs
+                      </p>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </div>
           </div>
+        </div>
 
-          {/* Mascot Section */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            <h2 className="text-3xl font-heading font-bold mb-6">Ta mascotte 🎭</h2>
-            <FunCard glow="soft" className="h-[400px]">
-              {/* <Mascot3D animation="idle" /> */}
-            </FunCard>
-          </motion.div>
+        {/* Right Column: Activity Feed */}
+        <div className="space-y-8">
+          <ActivityFeed />
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

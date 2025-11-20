@@ -1,136 +1,188 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import FunButton from "@/components/FunButton";
-import FunCard from "@/components/FunCard";
-// import Mascot3D from "@/components/Mascot3D";
-import { Input } from "@/components/ui/input";
+import { GlassButton } from "@/components/ui/GlassButton";
+import { GlassInput } from "@/components/ui/GlassInput";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ArrowLeft, Mail, Lock } from "lucide-react";
+import { ArrowLeft, Mail, Lock, Sparkles } from "lucide-react";
+import loginArt from "@/assets/login_welcome_back_art.png";
+import mascotCity from "@/assets/mascot_city_background.png";
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const images = [
+    { src: loginArt, alt: "Welcome Back Art", isTransparent: false },
+    { src: mascotCity, alt: "Mascot in Neon City", isTransparent: false },
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast.error("Remplis tous les champs !");
-      return;
-    }
+    // Bypass validation for demo
+    // if (!email || !password) {
+    //   toast.error("Remplis tous les champs !");
+    //   return;
+    // }
     toast.success("Connexion réussie ! 🎉");
     setTimeout(() => navigate("/dashboard"), 1000);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/10 flex items-center justify-center p-4 overflow-hidden relative">
-      {/* Background decorations */}
+    <div className="min-h-screen flex bg-[#0a0a0a] overflow-hidden">
+      {/* Left Side - Anime Art (Desktop) */}
       <motion.div
-        className="absolute top-10 right-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl"
-        animate={{ scale: [1, 1.2, 1], rotate: 360 }}
-        transition={{ duration: 8, repeat: Infinity }}
-      />
-      <motion.div
-        className="absolute bottom-10 left-10 w-32 h-32 bg-accent/20 rounded-full blur-3xl"
-        animate={{ scale: [1.2, 1, 1.2] }}
-        transition={{ duration: 6, repeat: Infinity }}
-      />
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8 }}
+        className="hidden lg:block lg:w-1/2 relative overflow-hidden"
+      >
+        {/* Dynamic Background for transparent images */}
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/40 via-[#0a0a0a] to-purple-900/40 z-0" />
 
-      <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-center relative z-10">
-        {/* Left side - 3D Mascot */}
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="hidden lg:block"
-        >
-          <div className="h-[500px] relative">
-            {/* <Mascot3D animation="wave" /> */}
-          </div>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-3xl font-heading font-bold text-center mt-6"
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentImageIndex}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5 }}
+            className="absolute inset-0 w-full h-full flex items-center justify-center"
           >
-            Content de te revoir ! 👋
-          </motion.h2>
-        </motion.div>
+            <img
+              src={images[currentImageIndex].src}
+              alt={images[currentImageIndex].alt}
+              className={`w-full h-full object-cover ${images[currentImageIndex].isTransparent ? 'object-contain scale-90' : 'object-cover'}`}
+            />
+          </motion.div>
+        </AnimatePresence>
 
-        {/* Right side - Login Form */}
+        {/* Gradient blend from right (black) to transparent */}
+        <div className="absolute inset-0 bg-gradient-to-l from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent z-10" style={{ width: '30%', left: 'auto', right: 0 }} />
+
+        <div className="absolute bottom-20 left-12 z-20 max-w-md">
+          <h2 className="text-5xl font-heading font-bold text-white mb-4 drop-shadow-lg">
+            Bon retour !
+          </h2>
+          <p className="text-xl text-white/80 font-medium">
+            Prêt à reprendre ta place dans le classement ?
+          </p>
+        </div>
+      </motion.div>
+
+      {/* Right Side - Form */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 relative z-20">
+        {/* Mobile Background Image */}
+        <div className="absolute inset-0 lg:hidden z-0">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentImageIndex}
+              src={images[currentImageIndex].src}
+              alt="Background"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.2 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1 }}
+              className="w-full h-full object-cover absolute inset-0"
+            />
+          </AnimatePresence>
+          <div className="absolute inset-0 bg-[#0a0a0a]/90 backdrop-blur-sm" />
+        </div>
+
         <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="w-full max-w-md relative z-10"
         >
-          <FunButton
-            variant="secondary"
-            size="sm"
+          <button
             onClick={() => navigate("/")}
-            className="mb-6"
+            className="flex items-center gap-2 text-white/50 hover:text-white transition-colors mb-8 group"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour
-          </FunButton>
+            <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+            Retour à l'accueil
+          </button>
 
-          <FunCard glow="secondary" className="p-8">
-            <h1 className="text-4xl font-heading font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Connexion
-            </h1>
-            <p className="text-muted-foreground mb-8">
-              Retrouve tes jeux et ton classement ! 🎮
-            </p>
+          <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.05] rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            {/* Subtle Decorative elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px] pointer-events-none" />
 
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="font-heading">
-                  <Mail className="inline mr-2 h-4 w-4" />
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="ton-email@otaku.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 rounded-xl border-2 focus:border-primary"
-                />
+            <div className="relative z-10">
+              <div className="text-center mb-8">
+                <div className="inline-flex p-3 rounded-2xl bg-white/5 border border-white/10 mb-4 shadow-inner">
+                  <Sparkles className="h-6 w-6 text-white/70" />
+                </div>
+                <h1 className="text-3xl font-heading font-bold text-white mb-2 tracking-tight">
+                  Connexion
+                </h1>
+                <p className="text-white/40 text-sm">
+                  Accède à ton espace Otaku
+                </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="font-heading">
-                  <Lock className="inline mr-2 h-4 w-4" />
-                  Mot de passe
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 rounded-xl border-2 focus:border-primary"
-                />
-              </div>
+              <form onSubmit={handleLogin} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1">
+                    Email
+                  </Label>
+                  <GlassInput
+                    id="email"
+                    type="email"
+                    placeholder="ton-email@otaku.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    icon={Mail}
+                  />
+                </div>
 
-              <FunButton type="submit" variant="primary" size="lg" className="w-full">
-                Se connecter ✨
-              </FunButton>
-            </form>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1">
+                    Mot de passe
+                  </Label>
+                  <GlassInput
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    icon={Lock}
+                  />
+                </div>
 
-            <div className="mt-6 text-center">
-              <p className="text-muted-foreground">
-                Pas encore de compte ?{" "}
-                <button
-                  onClick={() => navigate("/register")}
-                  className="text-primary font-semibold hover:underline"
+                <GlassButton
+                  type="submit"
+                  variant="glass-accent"
+                  size="lg"
+                  className="w-full mt-6"
                 >
-                  Inscris-toi ici
-                </button>
-              </p>
+                  Se connecter ✨
+                </GlassButton>
+              </form>
+
+              <div className="mt-8 text-center">
+                <p className="text-white/30 text-sm">
+                  Pas encore de compte ?{" "}
+                  <button
+                    onClick={() => navigate("/register")}
+                    className="text-white/70 font-medium hover:text-white transition-colors hover:underline"
+                  >
+                    Inscris-toi ici
+                  </button>
+                </p>
+              </div>
             </div>
-          </FunCard>
+          </div>
         </motion.div>
       </div>
     </div>

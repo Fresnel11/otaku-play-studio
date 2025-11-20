@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import FunButton from "@/components/FunButton";
-import { Input } from "@/components/ui/input";
+import { GlassButton } from "@/components/ui/GlassButton";
+import { GlassInput } from "@/components/ui/GlassInput";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowLeft, User, Mail, Lock, Sparkles } from "lucide-react";
@@ -63,7 +63,7 @@ const Register = () => {
               className="w-full h-full object-cover absolute inset-0"
             />
           </AnimatePresence>
-          <div className="absolute inset-0 bg-[#0a0a0a]/80 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-[#0a0a0a]/90 backdrop-blur-sm" />
         </div>
 
         <motion.div
@@ -80,111 +80,99 @@ const Register = () => {
             Retour à l'accueil
           </button>
 
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.05] rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            {/* Subtle Decorative elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px] pointer-events-none" />
 
             <div className="relative z-10">
               <div className="text-center mb-8">
-                <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 border border-white/10 mb-4">
-                  <Sparkles className="h-8 w-8 text-pink-400" />
+                <div className="inline-flex p-3 rounded-2xl bg-white/5 border border-white/10 mb-4 shadow-inner">
+                  <Sparkles className="h-6 w-6 text-white/70" />
                 </div>
-                <h1 className="text-3xl font-heading font-bold text-white mb-2">
-                  Inscription
+                <h1 className="text-3xl font-heading font-bold text-white mb-2 tracking-tight">
+                  Créer un compte
                 </h1>
-                <p className="text-white/50">
-                  Commence ton voyage Otaku aujourd'hui
+                <p className="text-white/40 text-sm">
+                  Rejoins la communauté et commence l'aventure
                 </p>
               </div>
 
               <form onSubmit={handleRegister} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="username" className="text-white/80 font-medium">
+                  <Label htmlFor="username" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1">
                     Pseudo
                   </Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
-                    <Input
-                      id="username"
-                      type="text"
-                      placeholder="SuperOtaku123"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-pink-500/50 focus:ring-pink-500/20 rounded-xl"
-                    />
-                  </div>
+                  <GlassInput
+                    id="username"
+                    type="text"
+                    placeholder="Ton pseudo de héros"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    icon={User}
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-white/80 font-medium">
+                  <Label htmlFor="email" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1">
                     Email
                   </Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="ton-email@otaku.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-pink-500/50 focus:ring-pink-500/20 rounded-xl"
-                    />
-                  </div>
+                  <GlassInput
+                    id="email"
+                    type="email"
+                    placeholder="exemple@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    icon={Mail}
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-white/80 font-medium">
+                  <Label htmlFor="password" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1">
                     Mot de passe
                   </Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-pink-500/50 focus:ring-pink-500/20 rounded-xl"
-                    />
-                  </div>
+                  <GlassInput
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    icon={Lock}
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-white/80 font-medium">
-                    Confirmer le mot de passe
+                  <Label htmlFor="confirmPassword" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1">
+                    Confirmation
                   </Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="••••••••"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-pink-500/50 focus:ring-pink-500/20 rounded-xl"
-                    />
-                  </div>
+                  <GlassInput
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    icon={Lock}
+                  />
                 </div>
 
-                <FunButton
+                <GlassButton
                   type="submit"
-                  variant="glass"
+                  variant="glass-accent"
                   size="lg"
-                  className="w-full mt-4 bg-gradient-to-r from-pink-500/80 to-purple-600/80 hover:from-pink-500 hover:to-purple-600 border-none"
+                  className="w-full mt-6"
                 >
-                  Créer mon compte 🚀
-                </FunButton>
+                  S'inscrire
+                </GlassButton>
               </form>
 
               <div className="mt-8 text-center">
-                <p className="text-white/40">
-                  Déjà inscrit ?{" "}
+                <p className="text-white/30 text-sm">
+                  Tu as déjà un compte ?{" "}
                   <button
                     onClick={() => navigate("/login")}
-                    className="text-pink-400 font-semibold hover:text-pink-300 transition-colors hover:underline"
+                    className="text-white/70 font-medium hover:text-white transition-colors hover:underline"
                   >
-                    Connecte-toi ici
+                    Se connecter
                   </button>
                 </p>
               </div>
@@ -195,7 +183,9 @@ const Register = () => {
 
       {/* Right Side - Anime Art Carousel (Desktop) */}
       <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[#0a0a0a]/90 z-10" />
+        {/* Gradient blend from left (black) to transparent */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent z-10" style={{ width: '30%' }} />
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-transparent z-10" />
 
         <AnimatePresence mode="wait">
           <motion.img
