@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import FunButton from "@/components/FunButton";
 import FunCard from "@/components/FunCard";
-import Mascot3D from "@/components/Mascot3D";
+// import Mascot3D from "@/components/Mascot3D";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -47,7 +47,7 @@ const Login = () => {
           className="hidden lg:block"
         >
           <div className="h-[500px] relative">
-            <Mascot3D animation="wave" />
+            {/* <Mascot3D animation="wave" /> */}
           </div>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}

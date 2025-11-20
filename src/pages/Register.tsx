@@ -1,13 +1,14 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import FunButton from "@/components/FunButton";
-import FunCard from "@/components/FunCard";
-import Mascot3D from "@/components/Mascot3D";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ArrowLeft, User, Mail, Lock } from "lucide-react";
+import { ArrowLeft, User, Mail, Lock, Sparkles } from "lucide-react";
+import welcomeArt from "@/assets/register_welcome_art.png";
+import ninjaArt from "@/assets/ninja_locks_character.png";
+import heroineArt from "@/assets/black_anime_heroine.png";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -15,6 +16,20 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const images = [
+    { src: welcomeArt, alt: "Welcome" },
+    { src: ninjaArt, alt: "Ninja" },
+    { src: heroineArt, alt: "Heroine" },
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,143 +46,178 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/10 flex items-center justify-center p-4 overflow-hidden relative">
-      {/* Background decorations */}
-      <motion.div
-        className="absolute top-20 left-20 w-40 h-40 bg-accent/20 rounded-full blur-3xl"
-        animate={{ scale: [1, 1.3, 1], x: [0, 50, 0] }}
-        transition={{ duration: 10, repeat: Infinity }}
-      />
-      <motion.div
-        className="absolute bottom-20 right-20 w-32 h-32 bg-secondary/20 rounded-full blur-3xl"
-        animate={{ scale: [1.2, 1, 1.2], y: [0, -30, 0] }}
-        transition={{ duration: 7, repeat: Infinity }}
-      />
+    <div className="min-h-screen flex bg-[#0a0a0a] overflow-hidden">
+      {/* Left Side - Form */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 relative z-20">
+        {/* Mobile Background Image (Carousel) */}
+        <div className="absolute inset-0 lg:hidden z-0">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentImageIndex}
+              src={images[currentImageIndex].src}
+              alt="Background"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.2 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1 }}
+              className="w-full h-full object-cover absolute inset-0"
+            />
+          </AnimatePresence>
+          <div className="absolute inset-0 bg-[#0a0a0a]/80 backdrop-blur-sm" />
+        </div>
 
-      <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-center relative z-10">
-        {/* Left side - Register Form */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="w-full max-w-md relative z-10"
         >
-          <FunButton
-            variant="secondary"
-            size="sm"
+          <button
             onClick={() => navigate("/")}
-            className="mb-6"
+            className="flex items-center gap-2 text-white/50 hover:text-white transition-colors mb-8 group"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour
-          </FunButton>
+            <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+            Retour à l'accueil
+          </button>
 
-          <FunCard glow="accent" className="p-8">
-            <h1 className="text-4xl font-heading font-bold mb-2 bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
-              Inscription
-            </h1>
-            <p className="text-muted-foreground mb-8">
-              Rejoins la communauté otaku ! 🌟
-            </p>
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
-            <form onSubmit={handleRegister} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="username" className="font-heading">
-                  <User className="inline mr-2 h-4 w-4" />
-                  Pseudo
-                </Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="SuperOtaku123"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="h-12 rounded-xl border-2 focus:border-accent"
-                />
+            <div className="relative z-10">
+              <div className="text-center mb-8">
+                <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 border border-white/10 mb-4">
+                  <Sparkles className="h-8 w-8 text-pink-400" />
+                </div>
+                <h1 className="text-3xl font-heading font-bold text-white mb-2">
+                  Inscription
+                </h1>
+                <p className="text-white/50">
+                  Commence ton voyage Otaku aujourd'hui
+                </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email" className="font-heading">
-                  <Mail className="inline mr-2 h-4 w-4" />
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="ton-email@otaku.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 rounded-xl border-2 focus:border-accent"
-                />
-              </div>
+              <form onSubmit={handleRegister} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-white/80 font-medium">
+                    Pseudo
+                  </Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="SuperOtaku123"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-pink-500/50 focus:ring-pink-500/20 rounded-xl"
+                    />
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="font-heading">
-                  <Lock className="inline mr-2 h-4 w-4" />
-                  Mot de passe
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 rounded-xl border-2 focus:border-accent"
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-white/80 font-medium">
+                    Email
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="ton-email@otaku.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-pink-500/50 focus:ring-pink-500/20 rounded-xl"
+                    />
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="font-heading">
-                  <Lock className="inline mr-2 h-4 w-4" />
-                  Confirmer le mot de passe
-                </Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="h-12 rounded-xl border-2 focus:border-accent"
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-white/80 font-medium">
+                    Mot de passe
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-pink-500/50 focus:ring-pink-500/20 rounded-xl"
+                    />
+                  </div>
+                </div>
 
-              <FunButton type="submit" variant="accent" size="lg" className="w-full">
-                Créer mon compte 🚀
-              </FunButton>
-            </form>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword" className="text-white/80 font-medium">
+                    Confirmer le mot de passe
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-pink-500/50 focus:ring-pink-500/20 rounded-xl"
+                    />
+                  </div>
+                </div>
 
-            <div className="mt-6 text-center">
-              <p className="text-muted-foreground">
-                Déjà inscrit ?{" "}
-                <button
-                  onClick={() => navigate("/login")}
-                  className="text-accent font-semibold hover:underline"
+                <FunButton
+                  type="submit"
+                  variant="glass"
+                  size="lg"
+                  className="w-full mt-4 bg-gradient-to-r from-pink-500/80 to-purple-600/80 hover:from-pink-500 hover:to-purple-600 border-none"
                 >
-                  Connecte-toi ici
-                </button>
-              </p>
-            </div>
-          </FunCard>
-        </motion.div>
+                  Créer mon compte 🚀
+                </FunButton>
+              </form>
 
-        {/* Right side - 3D Mascot */}
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="hidden lg:block"
-        >
-          <div className="h-[500px] relative">
-            <Mascot3D animation="happy" />
+              <div className="mt-8 text-center">
+                <p className="text-white/40">
+                  Déjà inscrit ?{" "}
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="text-pink-400 font-semibold hover:text-pink-300 transition-colors hover:underline"
+                  >
+                    Connecte-toi ici
+                  </button>
+                </p>
+              </div>
+            </div>
           </div>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-3xl font-heading font-bold text-center mt-6"
-          >
-            Bienvenue parmi nous ! 🎉
-          </motion.h2>
         </motion.div>
+      </div>
+
+      {/* Right Side - Anime Art Carousel (Desktop) */}
+      <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[#0a0a0a]/90 z-10" />
+
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={currentImageIndex}
+            src={images[currentImageIndex].src}
+            alt={images[currentImageIndex].alt}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5 }}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        </AnimatePresence>
+
+        <div className="absolute bottom-20 right-12 z-20 max-w-md text-right">
+          <h2 className="text-5xl font-heading font-bold text-white mb-4 drop-shadow-lg">
+            Rejoins l'aventure
+          </h2>
+          <p className="text-xl text-white/80 font-medium">
+            Crée ton profil, défie tes amis et deviens le meilleur Otaku de la communauté !
+          </p>
+        </div>
       </div>
     </div>
   );

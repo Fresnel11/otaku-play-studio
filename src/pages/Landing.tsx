@@ -2,8 +2,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import FunButton from "@/components/FunButton";
 import FunCard from "@/components/FunCard";
-import Mascot3D from "@/components/Mascot3D";
 import { Gamepad2, Sparkles, Trophy, Users } from "lucide-react";
+import animeVideo from "@/assets/middle_of_the_night_anime mix.mp4";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -30,124 +30,99 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/10 overflow-hidden">
-      {/* Floating shapes background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute top-20 left-10 w-32 h-32 bg-primary/20 rounded-full blur-3xl"
-          animate={{ y: [0, -30, 0], scale: [1, 1.2, 1] }}
-          transition={{ duration: 4, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-40 h-40 bg-secondary/20 rounded-full blur-3xl"
-          animate={{ y: [0, 30, 0], scale: [1, 1.3, 1] }}
-          transition={{ duration: 5, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/4 w-24 h-24 bg-accent/20 rounded-full blur-3xl"
-          animate={{ x: [0, 50, 0], scale: [1, 1.1, 1] }}
-          transition={{ duration: 6, repeat: Infinity }}
-        />
-      </div>
-
-      <div className="container mx-auto px-4 py-12 relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex justify-between items-center mb-16"
+    <div className="min-h-screen bg-background overflow-x-hidden">
+      {/* Hero Section with Video Background */}
+      <div className="relative h-screen w-full overflow-hidden">
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute top-0 left-0 w-full h-full object-cover"
         >
-          <h1 className="text-4xl font-heading font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-            OtakuPlay
-          </h1>
-          <div className="flex gap-4">
-            <FunButton variant="secondary" size="sm" onClick={() => navigate("/login")}>
-              Connexion
-            </FunButton>
-            <FunButton variant="accent" size="sm" onClick={() => navigate("/register")}>
-              S'inscrire
-            </FunButton>
-          </div>
-        </motion.div>
+          <source src={animeVideo} type="video/mp4" />
+        </video>
 
-        {/* Hero Section */}
-        <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/60 z-10" />
+
+        {/* Content */}
+        <div className="relative z-20 container mx-auto px-4 h-full flex flex-col justify-center items-center text-center">
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="mb-8"
           >
-            <h2 className="text-5xl lg:text-6xl font-heading font-bold mb-6 leading-tight">
-              La plateforme de{" "}
-              <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse-glow">
-                jeux otaku
-              </span>{" "}
-              la plus fun ! 🎮
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8">
-              Rejoins la communauté et montre que tu es le meilleur otaku en défiant tes amis sur
-              des quiz et mini-jeux ultra kawaii !
+            <h1 className="text-6xl md:text-8xl font-heading font-bold text-white mb-4 drop-shadow-lg">
+              OtakuPlay
+            </h1>
+            <p className="text-xl md:text-2xl text-white/90 font-medium max-w-2xl mx-auto drop-shadow-md">
+              La plateforme ultime pour les fans d'anime et de manga ! 🌸
             </p>
-            <div className="flex flex-wrap gap-4">
-              <FunButton
-                variant="primary"
-                size="lg"
-                onClick={() => navigate("/dashboard")}
-                className="group"
-              >
-                <Gamepad2 className="mr-2 h-5 w-5 group-hover:animate-wiggle" />
-                Jouer maintenant
-              </FunButton>
-              <FunButton variant="accent" size="lg" onClick={() => navigate("/register")}>
-                <Users className="mr-2 h-5 w-5" />
-                Créer un compte
-              </FunButton>
-            </div>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="relative"
+            className="flex flex-wrap justify-center gap-6"
           >
-            <div className="w-full h-[400px] lg:h-[500px] relative">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 rounded-full blur-3xl"
-              />
-              <Mascot3D animation="wave" className="relative z-10" />
-            </div>
+            <FunButton
+              variant="glass"
+              size="xl"
+              onClick={() => navigate("/games")}
+              className="text-lg px-8 py-6 hover:scale-105 transition-transform border-primary/50 hover:border-primary hover:bg-primary/20"
+            >
+              <Gamepad2 className="h-6 w-6" />
+              Jouer maintenant
+            </FunButton>
+            <FunButton
+              variant="glass"
+              size="xl"
+              onClick={() => navigate("/register")}
+              className="text-lg px-8 py-6 hover:scale-105 transition-transform border-secondary/50 hover:border-secondary hover:bg-secondary/20"
+            >
+              <Users className="h-6 w-6" />
+              Rejoindre le club
+            </FunButton>
           </motion.div>
         </div>
+      </div>
 
-        {/* Games Grid */}
+      {/* Games Grid Section */}
+      <div className="container mx-auto px-4 py-20 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
         >
-          <h3 className="text-3xl font-heading font-bold text-center mb-12">
+          <h3 className="text-4xl font-heading font-bold text-center mb-16 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
             Découvre nos jeux 🎯
           </h3>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-8">
             {games.map((game, index) => (
               <motion.div
                 key={game.title}
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 + index * 0.1 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.2 }}
               >
                 <FunCard
                   glow={game.color as "primary" | "secondary" | "accent"}
-                  className="cursor-pointer hover:border-primary/50 transition-colors group"
+                  className="cursor-pointer hover:border-primary/50 transition-all hover:-translate-y-2 h-full"
                   onClick={() => navigate("/quiz")}
                 >
-                  <game.icon className="h-12 w-12 mb-4 text-primary group-hover:animate-bounce-soft" />
-                  <h4 className="text-xl font-heading font-bold mb-2">{game.title}</h4>
-                  <p className="text-muted-foreground">{game.description}</p>
+                  <div className="flex flex-col items-center text-center">
+                    <div className={`p-4 rounded-full bg-${game.color}/10 mb-6`}>
+                      <game.icon className={`h-10 w-10 text-${game.color}`} />
+                    </div>
+                    <h4 className="text-2xl font-heading font-bold mb-3">{game.title}</h4>
+                    <p className="text-muted-foreground text-lg">{game.description}</p>
+                  </div>
                 </FunCard>
               </motion.div>
             ))}

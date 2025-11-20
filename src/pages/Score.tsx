@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import FunButton from "@/components/FunButton";
 import FunCard from "@/components/FunCard";
-import Mascot3D from "@/components/Mascot3D";
 import { Trophy, Home, RotateCcw, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -168,7 +167,7 @@ const Score = () => {
           className="hidden lg:block"
         >
           <div className="h-[500px] relative">
-            <Mascot3D animation={mascotAnimation} />
+            {/* <Mascot3D animation={mascotAnimation} /> */}
           </div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}

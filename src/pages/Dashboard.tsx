@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import FunButton from "@/components/FunButton";
 import FunCard from "@/components/FunCard";
-import Mascot3D from "@/components/Mascot3D";
+// import Mascot3D from "@/components/Mascot3D";
 import { Gamepad2, Trophy, Star, Zap, LogOut } from "lucide-react";
 
 const Dashboard = () => {
@@ -143,7 +143,7 @@ const Dashboard = () => {
           >
             <h2 className="text-3xl font-heading font-bold mb-6">Ta mascotte 🎭</h2>
             <FunCard glow="soft" className="h-[400px]">
-              <Mascot3D animation="idle" />
+              {/* <Mascot3D animation="idle" /> */}
             </FunCard>
           </motion.div>
         </div>
