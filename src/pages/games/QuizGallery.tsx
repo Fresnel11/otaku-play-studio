@@ -34,16 +34,16 @@ const QuizGallery = () => {
             id: "survival",
             title: "Mode Survie",
             description: "Combien de questions pourras-tu enchaîner sans erreur ?",
-            longDescription: "Une seule erreur et c'est fini. Grimpe dans le classement en survivant le plus longtemps possible face à des questions de plus en plus dures.",
+            longDescription: "Trois erreurs et c'est fini. Grimpe dans le classement en survivant le plus longtemps possible face à des questions de plus en plus dures.",
             icon: Shield,
             image: survivalModeCover,
             color: "text-emerald-400",
             stats: [
-                { label: "Vies", value: "1", icon: Trophy },
+                { label: "Vies", value: "3", icon: Trophy },
                 { label: "Difficulté", value: "Difficile", icon: Trophy },
             ],
-            action: () => toast.info("Ce mode sera bientôt disponible !"),
-            available: false
+            action: () => navigate("/games/survival"),
+            available: true
         },
         {
             id: "daily",

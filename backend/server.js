@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
 
 // Mount routes
 app.use('/api/auth', authRoutes);
-app.use('/api/games/speed-pulse', gameRoutes);
+app.use('/api/games', gameRoutes);
 app.use('/api/admin/questions', adminRoutes);
 
 const PORT = process.env.PORT || 5000;

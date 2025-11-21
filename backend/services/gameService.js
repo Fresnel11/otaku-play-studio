@@ -73,6 +73,13 @@ const calculateScore = (answers) => {
 // Submit game results
 const submitGameResults = async (sessionId, userId, answers) => {
     try {
+        // Get session to determine game type
+        const session = await GameSession.findById(sessionId);
+        if (!session) {
+            throw new Error('Session not found');
+        }
+        const gameType = session.gameType;
+
         // Calculate score
         const { totalScore, maxCombo, overdriveTriggered } = calculateScore(answers);
 
@@ -83,7 +90,7 @@ const submitGameResults = async (sessionId, userId, answers) => {
         const timeTaken = answers.reduce((sum, a) => sum + a.responseTime, 0) / 1000; // Convert to seconds
 
         // Update session
-        const session = await GameSession.findByIdAndUpdate(
+        await GameSession.findByIdAndUpdate(
             sessionId,
             {
                 score: totalScore,
@@ -97,18 +104,14 @@ const submitGameResults = async (sessionId, userId, answers) => {
             { new: true }
         );
 
-        if (!session) {
-            throw new Error('Session not found');
-        }
-
-        // Update leaderboard
-        await updateLeaderboard(userId, totalScore);
+        // Update leaderboard with game type
+        await updateLeaderboard(userId, totalScore, gameType);
 
         // Award XP to user
         const xpEarned = await awardXP(userId, totalScore);
 
-        // Get user rank
-        const rank = await getUserRank(userId);
+        // Get user rank for this game type
+        const rank = await getUserRank(userId, gameType);
 
         return {
             finalScore: totalScore,
@@ -125,15 +128,15 @@ const submitGameResults = async (sessionId, userId, answers) => {
 };
 
 // Update leaderboard
-const updateLeaderboard = async (userId, score) => {
+const updateLeaderboard = async (userId, score, gameType = 'speed-pulse') => {
     try {
-        let leaderboardEntry = await Leaderboard.findOne({ userId, gameType: 'speed-pulse' });
+        let leaderboardEntry = await Leaderboard.findOne({ userId, gameType });
 
         if (!leaderboardEntry) {
             // Create new entry
             leaderboardEntry = await Leaderboard.create({
                 userId,
-                gameType: 'speed-pulse',
+                gameType,
                 bestScore: score,
                 totalGames: 1,
                 averageScore: score,
@@ -179,9 +182,9 @@ const awardXP = async (userId, score) => {
 };
 
 // Get user rank
-const getUserRank = async (userId) => {
+const getUserRank = async (userId, gameType = 'speed-pulse') => {
     try {
-        const leaderboard = await Leaderboard.find({ gameType: 'speed-pulse' })
+        const leaderboard = await Leaderboard.find({ gameType })
             .sort({ bestScore: -1 })
             .select('userId');
 
@@ -194,9 +197,9 @@ const getUserRank = async (userId) => {
 };
 
 // Get leaderboard
-const getLeaderboard = async (limit = 10) => {
+const getLeaderboard = async (limit = 10, gameType = 'speed-pulse') => {
     try {
-        const leaderboard = await Leaderboard.find({ gameType: 'speed-pulse' })
+        const leaderboard = await Leaderboard.find({ gameType })
             .sort({ bestScore: -1 })
             .limit(limit)
             .populate('userId', 'username avatar level');
@@ -216,9 +219,9 @@ const getLeaderboard = async (limit = 10) => {
 };
 
 // Get user stats
-const getUserStats = async (userId) => {
+const getUserStats = async (userId, gameType = 'speed-pulse') => {
     try {
-        const stats = await Leaderboard.findOne({ userId, gameType: 'speed-pulse' });
+        const stats = await Leaderboard.findOne({ userId, gameType });
 
         if (!stats) {
             return {

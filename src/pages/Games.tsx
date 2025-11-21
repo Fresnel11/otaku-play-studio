@@ -88,18 +88,6 @@ const Games = () => {
             difficulty: "Variable",
             players: "Multi"
         },
-        {
-            id: 7,
-            title: "Mode Survie",
-            description: "3 Vies. Difficulté croissante. Jusqu'où iras-tu dans ce défi ultime ?",
-            icon: Skull,
-            image: "/survival_mode_cover.png",
-            color: "from-red-600 to-rose-600",
-            action: () => navigate("/games/survival"),
-            available: true,
-            difficulty: "Extrême",
-            players: "Solo"
-        },
     ];
 
     return (

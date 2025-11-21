@@ -4,13 +4,12 @@ const leaderboardSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
-        unique: true
+        required: true
     },
     gameType: {
         type: String,
         default: 'speed-pulse',
-        enum: ['speed-pulse']
+        enum: ['speed-pulse', 'survival']
     },
     bestScore: {
         type: Number,
@@ -35,6 +34,9 @@ const leaderboardSchema = new mongoose.Schema({
 
 // Index for leaderboard rankings
 leaderboardSchema.index({ gameType: 1, bestScore: -1 });
+
+// Composite unique index to ensure one entry per user per game type
+leaderboardSchema.index({ userId: 1, gameType: 1 }, { unique: true });
 
 // Method to update stats
 leaderboardSchema.methods.updateStats = function (newScore) {

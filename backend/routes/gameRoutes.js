@@ -53,7 +53,7 @@ const gameController = require('../controllers/gameController');
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/questions', gameController.getQuestions);
+router.get('/speed-pulse/questions', gameController.getQuestions);
 
 /**
  * @swagger
@@ -217,7 +217,45 @@ router.post('/survival/start', gameController.startSurvival);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/submit', gameController.submitGame);
+router.post('/speed-pulse/submit', gameController.submitGame);
+
+/**
+ * @swagger
+ * /api/games/survival/submit:
+ *   post:
+ *     summary: Soumet les résultats d'une partie en Mode Survie
+ *     tags: [Survival Mode]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - sessionId
+ *               - userId
+ *               - answers
+ *             properties:
+ *               sessionId:
+ *                 type: string
+ *               userId:
+ *                 type: string
+ *               answers:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     questionId:
+ *                       type: string
+ *                     userAnswer:
+ *                       type: number
+ *                     responseTime:
+ *                       type: number
+ *     responses:
+ *       200:
+ *         description: Résultats enregistrés avec succès
+ */
+router.post('/survival/submit', gameController.submitGame);
 
 /**
  * @swagger
@@ -263,7 +301,7 @@ router.post('/submit', gameController.submitGame);
  *                       totalGames:
  *                         type: number
  */
-router.get('/leaderboard', gameController.getLeaderboard);
+router.get('/speed-pulse/leaderboard', gameController.getLeaderboard);
 
 /**
  * @swagger
@@ -302,6 +340,50 @@ router.get('/leaderboard', gameController.getLeaderboard);
  *                       type: string
  *                       format: date-time
  */
-router.get('/stats/:userId', gameController.getUserStats);
+router.get('/speed-pulse/stats/:userId', gameController.getUserStats);
+
+/**
+ * @swagger
+ * /api/games/survival/leaderboard:
+ *   get:
+ *     summary: Récupère le classement des meilleurs joueurs en Mode Survie
+ *     tags: [Survival Mode]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: number
+ *           default: 10
+ *         description: Nombre de joueurs à afficher
+ *     responses:
+ *       200:
+ *         description: Classement récupéré avec succès
+ */
+router.get('/survival/leaderboard', (req, res) => {
+    req.query.gameType = 'survival';
+    return gameController.getLeaderboard(req, res);
+});
+
+/**
+ * @swagger
+ * /api/games/survival/stats/{userId}:
+ *   get:
+ *     summary: Récupère les statistiques d'un joueur en Mode Survie
+ *     tags: [Survival Mode]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de l'utilisateur
+ *     responses:
+ *       200:
+ *         description: Statistiques récupérées avec succès
+ */
+router.get('/survival/stats/:userId', (req, res) => {
+    req.query.gameType = 'survival';
+    return gameController.getUserStats(req, res);
+});
 
 module.exports = router;

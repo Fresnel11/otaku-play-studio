@@ -101,4 +101,81 @@ router.post('/register', authController.register);
  */
 router.post('/login', authController.login);
 
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Récupère les informations de l'utilisateur connecté
+ *     tags: [Authentification]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Informations utilisateur récupérées avec succès
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     username:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     firstname:
+ *                       type: string
+ *                     lastname:
+ *                       type: string
+ *                     avatar:
+ *                       type: string
+ *                     level:
+ *                       type: number
+ *                     xp:
+ *                       type: number
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         description: Non autorisé
+ */
+const { protect } = require('../middleware/auth');
+router.get('/me', protect, authController.getMe);
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   put:
+ *     summary: Met à jour le profil de l'utilisateur connecté
+ *     tags: [Authentification]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               bio:
+ *                 type: string
+ *               avatar:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profil mis à jour avec succès
+ *       400:
+ *         description: Erreur de validation
+ *       401:
+ *         description: Non autorisé
+ */
+router.put('/me', protect, authController.updateProfile);
+
 module.exports = router;

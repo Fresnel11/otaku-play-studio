@@ -59,26 +59,37 @@ const startGame = async (req, res) => {
 // @access  Private
 const startSurvival = async (req, res) => {
     try {
+        console.log('🎮 Starting Survival Mode...');
+        console.log('Request body:', req.body);
         const { userId } = req.body;
 
         if (!userId) {
+            console.log('❌ No userId provided');
             return res.status(400).json({
                 success: false,
                 message: 'User ID is required'
             });
         }
 
+        console.log('✅ UserId:', userId);
+        console.log('📚 Fetching 50 random questions...');
+
         // Get random questions (fetch 50 for survival mode)
         const questions = await questionService.getRandomQuestions(50);
+        console.log(`✅ Got ${questions.length} questions`);
 
+        console.log('💾 Creating session...');
         // Create session
         const session = await gameService.createSession(userId, questions, 'survival');
+        console.log('✅ Session created:', session.sessionId);
 
         res.status(201).json({
             success: true,
             data: session
         });
     } catch (error) {
+        console.error('❌ Error in startSurvival:', error.message);
+        console.error('Stack:', error.stack);
         res.status(400).json({
             success: false,
             message: error.message
@@ -136,12 +147,12 @@ const submitGame = async (req, res) => {
 };
 
 // @desc    Get leaderboard
-// @route   GET /api/games/speed-pulse/leaderboard
+// @route   GET /api/games/speed-pulse/leaderboard OR /api/games/survival/leaderboard
 // @access  Public
 const getLeaderboard = async (req, res) => {
     try {
-        const { limit = 10 } = req.query;
-        const leaderboard = await gameService.getLeaderboard(parseInt(limit));
+        const { limit = 10, gameType = 'speed-pulse' } = req.query;
+        const leaderboard = await gameService.getLeaderboard(parseInt(limit), gameType);
 
         res.status(200).json({
             success: true,
@@ -157,12 +168,13 @@ const getLeaderboard = async (req, res) => {
 };
 
 // @desc    Get user stats
-// @route   GET /api/games/speed-pulse/stats/:userId
+// @route   GET /api/games/speed-pulse/stats/:userId OR /api/games/survival/stats/:userId
 // @access  Private
 const getUserStats = async (req, res) => {
     try {
         const { userId } = req.params;
-        const stats = await gameService.getUserStats(userId);
+        const { gameType = 'speed-pulse' } = req.query;
+        const stats = await gameService.getUserStats(userId, gameType);
 
         res.status(200).json({
             success: true,

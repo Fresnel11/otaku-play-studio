@@ -63,7 +63,68 @@ const login = async (req, res) => {
     }
 };
 
+// @desc    Get current user profile
+// @route   GET /api/auth/me
+// @access  Private
+const getMe = async (req, res) => {
+    try {
+        const userId = req.user?.id || req.user?._id;
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'Not authorized'
+            });
+        }
+
+        const user = await authService.getUserById(userId);
+
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// @desc    Update user profile
+// @route   PUT /api/auth/me
+// @access  Private
+const updateProfile = async (req, res) => {
+    try {
+        const userId = req.user?.id || req.user?._id;
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'Not authorized'
+            });
+        }
+
+        const { username, bio, avatar } = req.body;
+        const updates = { username, bio, avatar };
+
+        const updatedUser = await authService.updateProfile(userId, updates);
+
+        res.status(200).json({
+            success: true,
+            data: updatedUser
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 module.exports = {
     register,
-    login
+    login,
+    getMe,
+    updateProfile
 };

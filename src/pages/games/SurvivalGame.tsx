@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { startSurvivalGame, submitGame, Question, GameResult } from '../../services/gameService';
+import { startSurvivalGame, submitSurvivalGame, Question, GameResult } from '../../services/gameService';
 import PulseTimer from '../../components/games/PulseTimer';
 import HeartDisplay from '../../components/games/HeartDisplay';
 import GlitchText from '@/components/games/GlitchText';
@@ -10,6 +10,7 @@ import { Zap, Trophy, Timer, ArrowLeft, Sparkles, Flame, Target, Skull } from 'l
 import { GlassButton } from '@/components/ui/GlassButton';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import survivalBgVideo from '@/assets/survial_mode.mp4';
 
 const SurvivalGame: React.FC = () => {
     const navigate = useNavigate();
@@ -220,7 +221,7 @@ const SurvivalGame: React.FC = () => {
         if (!sessionId || !userId) return;
         const answersToSubmit = finalAnswers || answers;
         try {
-            const result = await submitGame(sessionId, userId, answersToSubmit);
+            const result = await submitSurvivalGame(sessionId, userId, answersToSubmit);
             setGameResult(result);
         } catch (error) {
             console.error("Error submitting game:", error);
@@ -306,6 +307,20 @@ const SurvivalGame: React.FC = () => {
             "min-h-screen bg-[#0a0a0a] flex flex-col relative overflow-hidden font-sans transition-transform duration-100",
             isDamaged ? "translate-x-[-5px] translate-y-[5px]" : ""
         )}>
+            {/* Video Background */}
+            <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none"
+            >
+                <source src={survivalBgVideo} type="video/mp4" />
+            </video>
+
+            {/* Dark Overlay */}
+            <div className="absolute inset-0 bg-black/50 pointer-events-none" />
+
             {/* Damage Flash Overlay */}
             <div className={cn(
                 "absolute inset-0 bg-red-600/30 pointer-events-none z-50 transition-opacity duration-100",

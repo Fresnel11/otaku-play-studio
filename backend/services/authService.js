@@ -81,8 +81,80 @@ const loginUser = async (email, password) => {
     };
 };
 
+// Get user by ID
+const getUserById = async (userId) => {
+    const user = await User.findById(userId).select('-password');
+
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    return {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        avatar: user.avatar,
+        bio: user.bio,
+        level: user.level,
+        xp: user.xp,
+        createdAt: user.createdAt
+    };
+};
+
+// Update user profile
+const updateProfile = async (userId, updates) => {
+    const allowedUpdates = ['username', 'bio', 'avatar'];
+    const filteredUpdates = {};
+
+    // Only allow specific fields to be updated
+    Object.keys(updates).forEach(key => {
+        if (allowedUpdates.includes(key)) {
+            filteredUpdates[key] = updates[key];
+        }
+    });
+
+    // Check if username is being changed and if it's already taken
+    if (filteredUpdates.username) {
+        const existingUser = await User.findOne({
+            username: filteredUpdates.username,
+            _id: { $ne: userId }
+        });
+
+        if (existingUser) {
+            throw new Error('Username already taken');
+        }
+    }
+
+    const user = await User.findByIdAndUpdate(
+        userId,
+        filteredUpdates,
+        { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    return {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        avatar: user.avatar,
+        bio: user.bio,
+        level: user.level,
+        xp: user.xp,
+        createdAt: user.createdAt
+    };
+};
+
 module.exports = {
     registerUser,
     loginUser,
+    getUserById,
+    updateProfile,
     generateToken
 };

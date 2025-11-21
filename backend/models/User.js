@@ -37,6 +37,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
     },
+    bio: {
+        type: String,
+        default: '',
+        maxlength: [500, 'Bio must be less than 500 characters']
+    },
     level: {
         type: Number,
         default: 1,

@@ -1,15 +1,86 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { User, Mail, Camera, Save, Settings as SettingsIcon } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { GlassButton } from "@/components/ui/GlassButton";
 import { GlassInput } from "@/components/ui/GlassInput";
 import { AvatarGenerator } from "@/components/profile/AvatarGenerator";
 import { cn } from "@/lib/utils";
+import { getCurrentUser, updateProfile, UserProfile } from "@/services/userService";
+import { toast } from "sonner";
 
 const Profile = () => {
+    const navigate = useNavigate();
     const [avatarUrl, setAvatarUrl] = useState("https://api.dicebear.com/7.x/avataaars/svg?seed=Felix");
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+
+    // Form state
+    const [formData, setFormData] = useState({
+        username: '',
+        bio: ''
+    });
+
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const profile = await getCurrentUser();
+                setUserProfile(profile);
+                setAvatarUrl(profile.avatar);
+                setFormData({
+                    username: profile.username,
+                    bio: profile.bio
+                });
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+                toast.error("Impossible de charger le profil");
+                navigate('/login');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserProfile();
+    }, [navigate]);
+
+    const handleSave = async () => {
+        if (!userProfile) return;
+
+        setSaving(true);
+        try {
+            const updatedProfile = await updateProfile({
+                username: formData.username,
+                bio: formData.bio,
+                avatar: avatarUrl
+            });
+
+            setUserProfile(updatedProfile);
+            toast.success("Profil mis à jour avec succès !");
+        } catch (error: any) {
+            console.error("Error updating profile:", error);
+            toast.error(error.response?.data?.message || "Erreur lors de la mise à jour");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <DashboardLayout>
+                <div className="flex items-center justify-center min-h-screen">
+                    <div className="text-white text-xl">Chargement...</div>
+                </div>
+            </DashboardLayout>
+        );
+    }
+
+    if (!userProfile) {
+        return null;
+    }
+
+    const memberSince = new Date(userProfile.createdAt).getFullYear();
 
     return (
         <DashboardLayout>
@@ -50,8 +121,8 @@ const Profile = () => {
                             />
                         </div>
                         <div className="mb-2 text-center md:text-left">
-                            <h1 className="text-2xl md:text-3xl font-bold text-white">SuperOtaku</h1>
-                            <p className="text-white/60 text-sm md:text-base">Niveau 5 • Membre depuis 2023</p>
+                            <h1 className="text-2xl md:text-3xl font-bold text-white">{userProfile.username}</h1>
+                            <p className="text-white/60 text-sm md:text-base">Niveau {userProfile.level} • {userProfile.xp} XP • Membre depuis {memberSince}</p>
                         </div>
                     </div>
                 </div>
@@ -72,11 +143,15 @@ const Profile = () => {
                         <div className="grid md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-white/60">Pseudo</label>
-                                <GlassInput defaultValue="SuperOtaku" icon={User} />
+                                <GlassInput
+                                    value={formData.username}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
+                                    icon={User}
+                                />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-white/60">Email</label>
-                                <GlassInput defaultValue="otaku@example.com" icon={Mail} />
+                                <GlassInput value={userProfile.email} icon={Mail} disabled />
                             </div>
                         </div>
 
@@ -84,14 +159,20 @@ const Profile = () => {
                             <label className="text-sm font-medium text-white/60">Bio</label>
                             <textarea
                                 className="w-full h-32 bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/10 transition-all resize-none"
-                                defaultValue="Passionné d'anime et de jeux vidéo. Toujours prêt pour un défi !"
+                                value={formData.bio}
+                                onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+                                placeholder="Parle-nous de toi..."
                             />
                         </div>
 
                         <div className="flex justify-end">
-                            <GlassButton className="bg-indigo-500 hover:bg-indigo-600 text-white border-none">
+                            <GlassButton
+                                onClick={handleSave}
+                                disabled={saving}
+                                className="bg-indigo-500 hover:bg-indigo-600 text-white border-none disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
                                 <Save className="mr-2 h-4 w-4" />
-                                Sauvegarder
+                                {saving ? 'Sauvegarde...' : 'Sauvegarder'}
                             </GlassButton>
                         </div>
                     </div>

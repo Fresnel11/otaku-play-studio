@@ -76,6 +76,23 @@ export const submitGame = async (
     return response.data.data;
 };
 
+export const submitSurvivalGame = async (
+    sessionId: string,
+    userId: string,
+    answers: { questionId: string; userAnswer: number; responseTime: number }[]
+): Promise<GameResult> => {
+    const response = await axios.post(
+        `${API_URL}/survival/submit`,
+        {
+            sessionId,
+            userId,
+            answers,
+        },
+        { headers: getAuthHeader() }
+    );
+    return response.data.data;
+};
+
 export const getLeaderboard = async (limit: number = 10): Promise<LeaderboardEntry[]> => {
     const response = await axios.get(`${API_URL}/speed-pulse/leaderboard?limit=${limit}`);
     return response.data.data;
