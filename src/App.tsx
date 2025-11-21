@@ -15,6 +15,9 @@ import Settings from "./pages/Settings";
 import QuizGame from "./pages/QuizGame";
 import Score from "./pages/Score";
 import NotFound from "./pages/NotFound";
+import SpeedPulseGame from "./pages/games/SpeedPulseGame";
+import SurvivalGame from "./pages/games/SurvivalGame";
+import QuizGallery from "./pages/games/QuizGallery";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +38,9 @@ const App = () => (
           <Route path="/settings" element={<Settings />} />
           <Route path="/quiz" element={<QuizGame />} />
           <Route path="/score" element={<Score />} />
+          <Route path="/games/quiz" element={<QuizGallery />} />
+          <Route path="/games/quiz/speed-pulse" element={<SpeedPulseGame />} />
+          <Route path="/games/survival" element={<SurvivalGame />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

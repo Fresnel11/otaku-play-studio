@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Gamepad2, Sparkles, Trophy, Users, Brain, Zap, ArrowLeft } from "lucide-react";
-import GameCard3D from "@/components/GameCard3D";
+import { Gamepad2, Sparkles, Trophy, Users, Brain, Zap, Play, Lock, Skull } from "lucide-react";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import { cn } from "@/lib/utils";
 
 // Import assets
 import animeQuizCover from "@/assets/games/anime_quiz_cover.png";
@@ -21,9 +22,11 @@ const Games = () => {
             description: "Teste tes connaissances sur les animes populaires et montre que tu es un vrai otaku !",
             icon: Sparkles,
             image: animeQuizCover,
-            color: "pink-500",
-            action: () => navigate("/quiz"),
+            color: "from-pink-500 to-rose-500",
+            action: () => navigate("/games/quiz"),
             available: true,
+            difficulty: "Facile",
+            players: "Solo"
         },
         {
             id: 2,
@@ -31,9 +34,11 @@ const Games = () => {
             description: "Trouve les paires de personnages d'anime dans ce jeu de mémoire amusant.",
             icon: Brain,
             image: memoryGameCover,
-            color: "cyan-500",
-            action: () => alert("Bientôt disponible ! 🎮"),
+            color: "from-cyan-500 to-blue-500",
+            action: () => { },
             available: false,
+            difficulty: "Moyen",
+            players: "Solo"
         },
         {
             id: 3,
@@ -41,9 +46,11 @@ const Games = () => {
             description: "Compare ton score avec les autres otakus du monde entier !",
             icon: Trophy,
             image: rankingCover,
-            color: "yellow-500",
-            action: () => alert("Bientôt disponible ! 🏆"),
+            color: "from-yellow-500 to-amber-500",
+            action: () => { },
             available: false,
+            difficulty: "Difficile",
+            players: "Multi"
         },
         {
             id: 4,
@@ -51,9 +58,11 @@ const Games = () => {
             description: "Affronte d'autres joueurs en temps réel dans des quiz épiques !",
             icon: Zap,
             image: battleRoyaleCover,
-            color: "red-500",
-            action: () => alert("Bientôt disponible ! ⚡"),
+            color: "from-red-500 to-orange-500",
+            action: () => { },
             available: false,
+            difficulty: "Expert",
+            players: "Multi"
         },
         {
             id: 5,
@@ -61,9 +70,11 @@ const Games = () => {
             description: "Découvre des histoires d'anime à travers des quiz thématiques captivants.",
             icon: Gamepad2,
             image: storyModeCover,
-            color: "purple-500",
-            action: () => alert("Bientôt disponible ! 📖"),
+            color: "from-purple-500 to-indigo-500",
+            action: () => { },
             available: false,
+            difficulty: "Variable",
+            players: "Solo"
         },
         {
             id: 6,
@@ -71,60 +82,113 @@ const Games = () => {
             description: "Rejoins les défis créés par la communauté et gagne des récompenses exclusives.",
             icon: Users,
             image: communityCover,
-            color: "green-500",
-            action: () => alert("Bientôt disponible ! 🌟"),
+            color: "from-green-500 to-emerald-500",
+            action: () => { },
             available: false,
+            difficulty: "Variable",
+            players: "Multi"
+        },
+        {
+            id: 7,
+            title: "Mode Survie",
+            description: "3 Vies. Difficulté croissante. Jusqu'où iras-tu dans ce défi ultime ?",
+            icon: Skull,
+            image: "/survival_mode_cover.png",
+            color: "from-red-600 to-rose-600",
+            action: () => navigate("/games/survival"),
+            available: true,
+            difficulty: "Extrême",
+            players: "Solo"
         },
     ];
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] relative overflow-x-hidden">
-            {/* Animated Background */}
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px] animate-pulse" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: "2s" }} />
-                <div className="absolute top-[40%] left-[40%] w-[30%] h-[30%] bg-pink-600/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "4s" }} />
-            </div>
-
-            <div className="container mx-auto px-4 py-12 relative z-10">
+        <DashboardLayout>
+            <div className="max-w-7xl mx-auto pb-20">
                 {/* Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: -50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="mb-16 text-center"
-                >
-                    <button
-                        onClick={() => navigate("/")}
-                        className="absolute left-4 top-12 flex items-center gap-2 text-white/50 hover:text-white transition-colors group"
-                    >
-                        <ArrowLeft className="h-6 w-6 group-hover:-translate-x-1 transition-transform" />
-                        <span className="hidden md:inline">Retour</span>
-                    </button>
-
-                    <h1 className="text-6xl md:text-8xl font-heading font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/50 mb-6 tracking-tight">
-                        ARCADE ZONE
-                    </h1>
-                    <p className="text-xl md:text-2xl text-white/60 max-w-2xl mx-auto font-light">
-                        Plonge dans l'univers Otaku. Choisis ton défi.
+                <div className="mb-12">
+                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Arcade Zone</h1>
+                    <p className="text-white/60 text-lg max-w-2xl">
+                        Choisis ton défi parmi notre sélection de jeux. Gagne de l'XP, monte en niveau et débloque des récompenses exclusives !
                     </p>
-                </motion.div>
+                </div>
 
                 {/* Games Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {games.map((game, index) => (
                         <motion.div
                             key={game.id}
-                            initial={{ opacity: 0, y: 50 }}
+                            initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.15, duration: 0.6, ease: "easeOut" }}
+                            transition={{ delay: index * 0.1 }}
+                            className="group relative h-[400px] rounded-3xl overflow-hidden cursor-pointer"
+                            onClick={game.available ? game.action : undefined}
                         >
-                            <GameCard3D {...game} />
+                            {/* Background Image with Gradient Overlay */}
+                            <div className="absolute inset-0">
+                                <img
+                                    src={game.image}
+                                    alt={game.title}
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90" />
+                            </div>
+
+                            {/* Content */}
+                            <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                                {/* Tags */}
+                                <div className="flex gap-2 mb-4">
+                                    <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-medium text-white border border-white/10">
+                                        {game.difficulty}
+                                    </span>
+                                    <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-medium text-white border border-white/10">
+                                        {game.players}
+                                    </span>
+                                </div>
+
+                                {/* Title & Description */}
+                                <div className="mb-6">
+                                    <div className={cn(
+                                        "w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-gradient-to-br text-white shadow-lg",
+                                        game.color
+                                    )}>
+                                        <game.icon className="h-6 w-6" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">
+                                        {game.title}
+                                    </h3>
+                                    <p className="text-white/60 text-sm line-clamp-2 group-hover:text-white/80 transition-colors">
+                                        {game.description}
+                                    </p>
+                                </div>
+
+                                {/* Action Button */}
+                                <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                                    {game.available ? (
+                                        <button className="flex items-center gap-2 text-white font-medium group/btn">
+                                            <span className="bg-white text-black p-2 rounded-full group-hover/btn:scale-110 transition-transform">
+                                                <Play className="h-4 w-4 fill-current" />
+                                            </span>
+                                            <span>Jouer maintenant</span>
+                                        </button>
+                                    ) : (
+                                        <div className="flex items-center gap-2 text-white/40 font-medium">
+                                            <span className="bg-white/10 p-2 rounded-full">
+                                                <Lock className="h-4 w-4" />
+                                            </span>
+                                            <span>Bientôt disponible</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Hover Border Effect */}
+                            <div className="absolute inset-0 border-2 border-white/0 rounded-3xl transition-colors duration-300 group-hover:border-white/20 pointer-events-none" />
                         </motion.div>
                     ))}
                 </div>
             </div>
-        </div>
+        </DashboardLayout>
     );
 };
 

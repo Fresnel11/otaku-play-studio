@@ -8,11 +8,13 @@ import { toast } from "sonner";
 import { ArrowLeft, Mail, Lock, Sparkles } from "lucide-react";
 import loginArt from "@/assets/login_welcome_back_art.png";
 import mascotCity from "@/assets/mascot_city_background.png";
+import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const images = [
@@ -27,15 +29,39 @@ const Login = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Bypass validation for demo
-    // if (!email || !password) {
-    //   toast.error("Remplis tous les champs !");
-    //   return;
-    // }
-    toast.success("Connexion réussie ! 🎉");
-    setTimeout(() => navigate("/dashboard"), 1000);
+
+    if (!email || !password) {
+      toast.error("Remplis tous les champs !");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        email,
+        password
+      });
+
+      if (response.data.success) {
+        const { token, user } = response.data.data;
+
+        // Store auth data
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+
+        toast.success(`Bon retour, ${user.username} ! 🎉`);
+        setTimeout(() => navigate("/dashboard"), 1000);
+      }
+    } catch (error: any) {
+      console.error("Login error:", error);
+      const message = error.response?.data?.message || "Erreur de connexion. Vérifie tes identifiants.";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -143,6 +169,7 @@ const Login = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     icon={Mail}
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -157,6 +184,7 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     icon={Lock}
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -165,8 +193,9 @@ const Login = () => {
                   variant="glass-accent"
                   size="lg"
                   className="w-full mt-6"
+                  disabled={isLoading}
                 >
-                  Se connecter ✨
+                  {isLoading ? "Connexion..." : "Se connecter ✨"}
                 </GlassButton>
               </form>
 

@@ -9,13 +9,17 @@ import { ArrowLeft, User, Mail, Lock, Sparkles } from "lucide-react";
 import welcomeArt from "@/assets/register_welcome_art.png";
 import ninjaArt from "@/assets/ninja_locks_character.png";
 import heroineArt from "@/assets/black_anime_heroine.png";
+import axios from "axios";
 
 const Register = () => {
   const navigate = useNavigate();
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const images = [
@@ -31,18 +35,46 @@ const Register = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !email || !password || !confirmPassword) {
+
+    if (!firstname || !lastname || !username || !email || !password || !confirmPassword) {
       toast.error("Remplis tous les champs !");
       return;
     }
+
     if (password !== confirmPassword) {
       toast.error("Les mots de passe ne correspondent pas !");
       return;
     }
-    toast.success("Bienvenue dans la communauté otaku ! 🎉");
-    setTimeout(() => navigate("/dashboard"), 1000);
+
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/register', {
+        firstname,
+        lastname,
+        username,
+        email,
+        password
+      });
+
+      if (response.data.success) {
+        const { token, user } = response.data.data;
+
+        // Store auth data
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+
+        toast.success("Bienvenue dans la communauté otaku ! 🎉");
+        setTimeout(() => navigate("/dashboard"), 1000);
+      }
+    } catch (error: any) {
+      const message = error.response?.data?.message || "Erreur lors de l'inscription";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -99,6 +131,37 @@ const Register = () => {
               </div>
 
               <form onSubmit={handleRegister} className="space-y-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstname" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1">
+                      Prénom
+                    </Label>
+                    <GlassInput
+                      id="firstname"
+                      type="text"
+                      placeholder="Naruto"
+                      value={firstname}
+                      onChange={(e) => setFirstname(e.target.value)}
+                      icon={User}
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastname" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1">
+                      Nom
+                    </Label>
+                    <GlassInput
+                      id="lastname"
+                      type="text"
+                      placeholder="Uzumaki"
+                      value={lastname}
+                      onChange={(e) => setLastname(e.target.value)}
+                      icon={User}
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="username" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1">
                     Pseudo
@@ -110,6 +173,7 @@ const Register = () => {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     icon={User}
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -124,6 +188,7 @@ const Register = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     icon={Mail}
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -138,6 +203,7 @@ const Register = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     icon={Lock}
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -152,6 +218,7 @@ const Register = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     icon={Lock}
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -160,8 +227,9 @@ const Register = () => {
                   variant="glass-accent"
                   size="lg"
                   className="w-full mt-6"
+                  disabled={isLoading}
                 >
-                  S'inscrire
+                  {isLoading ? "Inscription..." : "S'inscrire"}
                 </GlassButton>
               </form>
 
