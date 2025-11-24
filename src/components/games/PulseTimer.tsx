@@ -22,20 +22,19 @@ const PulseTimer: React.FC<PulseTimerProps> = ({ duration, onComplete, isActive,
 
         const interval = setInterval(() => {
             setTimeLeft((prev) => {
-                // Slow down time by 50% in Overdrive
                 const decrement = isOverdrive ? 0.05 : 0.1;
-
-                if (prev <= decrement) {
-                    clearInterval(interval);
-                    onComplete();
-                    return 0;
-                }
-                return prev - decrement;
+                return Math.max(0, prev - decrement);
             });
         }, 100);
 
         return () => clearInterval(interval);
-    }, [isActive, isOverdrive, onComplete]);
+    }, [isActive, isOverdrive]);
+
+    useEffect(() => {
+        if (timeLeft === 0 && isActive) {
+            onComplete();
+        }
+    }, [timeLeft, isActive, onComplete]);
 
     const percentage = (timeLeft / duration) * 100;
 

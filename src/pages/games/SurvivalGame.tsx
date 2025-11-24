@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { startSurvivalGame, submitSurvivalGame, Question, GameResult } from '../../services/gameService';
 import PulseTimer from '../../components/games/PulseTimer';
 import HeartDisplay from '../../components/games/HeartDisplay';
@@ -14,6 +14,9 @@ import survivalBgVideo from '@/assets/survial_mode.mp4';
 
 const SurvivalGame: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const theme = searchParams.get('theme');
+
     const [gameState, setGameState] = useState<'intro' | 'playing' | 'finished'>('intro');
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -64,7 +67,7 @@ const SurvivalGame: React.FC = () => {
     const handleStartGame = async () => {
         if (!userId) return;
         try {
-            const session = await startSurvivalGame(userId);
+            const session = await startSurvivalGame(userId, theme || undefined);
             setQuestions(session.questions);
             setSessionId(session.sessionId);
             setGameState('playing');
@@ -188,8 +191,15 @@ const SurvivalGame: React.FC = () => {
         setCombo(0);
         setLives(prev => prev - 1);
         triggerDamageEffect();
+        setIsTimerActive(false); // Stop the timer loop
 
         const currentQuestion = questions[currentQuestionIndex];
+
+        if (!currentQuestion) {
+            console.error("Current question is undefined in handleTimeout");
+            return;
+        }
+
         const newAnswer = {
             questionId: currentQuestion._id,
             userAnswer: -1,

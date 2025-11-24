@@ -6,6 +6,8 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const gameRoutes = require('./routes/gameRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const avatarRoutes = require('./routes/avatarRoutes');
+const gameCategoryRoutes = require('./routes/gameCategoryRoutes');
 const swaggerSpec = require('./config/swagger');
 const seedQuestions = require('./seeder/seedQuestions');
 
@@ -40,7 +42,9 @@ app.get('/', (req, res) => {
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/games', gameRoutes);
+app.use('/api/games/categories', gameCategoryRoutes);
 app.use('/api/admin/questions', adminRoutes);
+app.use('/api/avatar', avatarRoutes);
 
 const PORT = process.env.PORT || 5000;
 

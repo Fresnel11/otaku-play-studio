@@ -18,6 +18,8 @@ export interface UserProfile {
     bio: string;
     level: number;
     xp: number;
+    gamesPlayed: number;
+    wins: number;
     createdAt: string;
 }
 
@@ -38,3 +40,6 @@ export const updateProfile = async (updates: {
     });
     return response.data.data;
 };
+
+// Alias for consistency
+export const getUserProfile = getCurrentUser;

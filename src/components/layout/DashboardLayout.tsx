@@ -31,7 +31,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         { icon: Settings, label: "Paramètres", path: "/settings" },
     ];
 
-    const isActive = (path: string) => location.pathname === path;
+    const isActive = (path: string) => {
+        // For /games, also match /games/quiz, /games/survival, etc.
+        if (path === '/games') {
+            return location.pathname.startsWith('/games');
+        }
+        return location.pathname === path;
+    };
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white flex relative overflow-hidden">

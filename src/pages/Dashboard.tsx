@@ -1,44 +1,112 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Trophy, Star, Zap, Flame, Users, Play } from "lucide-react";
+import { Trophy, Star, Zap, Flame, Play } from "lucide-react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import StatCard from "@/components/dashboard/StatCard";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import { GlassButton } from "@/components/ui/GlassButton";
 import mascotWelcome from "@/assets/mascott/Gemini_Generated_Image_suo6ctsuo6ctsuo6-removebg-preview.png";
+import { getUserProfile } from "@/services/userService";
+import { getTopCategories, type GameCategory } from "@/services/gameCategoryService";
+
+// Import game cover images
+import animeQuizCover from "@/assets/games/anime_quiz_cover.png";
+import memoryGameCover from "@/assets/games/memory_game_cover.png";
+import rankingCover from "@/assets/games/ranking_cover.png";
+import battleRoyaleCover from "@/assets/games/battle_royale_cover.png";
+import storyModeCover from "@/assets/games/story_mode_cover.png";
+import communityCover from "@/assets/games/community_cover.png";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const username = "SuperOtaku";
+  const [userData, setUserData] = useState({
+    username: "SuperOtaku",
+    level: 1,
+    xp: 0,
+    gamesPlayed: 0,
+    wins: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [topGames, setTopGames] = useState<GameCategory[]>([]);
+
+  // Map category IDs to their images
+  const categoryImages: Record<string, string> = {
+    'quiz-anime': animeQuizCover,
+    'memory-kawaii': memoryGameCover,
+    'classement-mondial': rankingCover,
+    'battle-royale': battleRoyaleCover,
+    'mode-histoire': storyModeCover,
+    'defi-communautaire': communityCover,
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch user profile
+        const profile = await getUserProfile();
+        setUserData({
+          username: profile.username,
+          level: profile.level || 1,
+          xp: profile.xp || 0,
+          gamesPlayed: profile.gamesPlayed || 0,
+          wins: profile.wins || 0,
+        });
+
+        // Fetch top game categories
+        const categories = await getTopCategories(3);
+        setTopGames(categories);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Calculate stats
+  const winRate = userData.gamesPlayed > 0
+    ? Math.round((userData.wins / userData.gamesPlayed) * 100)
+    : 0;
+
+  const xpToNextLevel = userData.level * 100; // Simple formula: level * 100
+  const xpProgress = Math.round((userData.xp / xpToNextLevel) * 100);
+  const xpRemaining = xpToNextLevel - userData.xp;
 
   const stats = [
-    { label: "Niveau", value: "5", icon: Star, color: "indigo", trend: "20% XP", trendUp: true },
-    { label: "Parties jouées", value: "42", icon: Zap, color: "purple", trend: "12 cette semaine", trendUp: true },
-    { label: "Victoires", value: "28", icon: Trophy, color: "pink", trend: "66% Win Rate", trendUp: true },
-    { label: "Amis", value: "15", icon: Users, color: "blue", trend: "3 en ligne", trendUp: true },
-  ];
-
-  const recommendedGames = [
     {
-      title: "Anime Quiz",
-      category: "Quiz",
-      players: "1.2k",
-      image: "bg-gradient-to-br from-indigo-500/20 to-purple-600/20 grayscale hover:grayscale-0",
-      action: () => navigate("/quiz"),
+      label: "Niveau",
+      value: userData.level.toString(),
+      icon: Star,
+      color: "indigo",
+      trend: `${xpProgress}% XP`,
+      trendUp: true
     },
     {
-      title: "Memory Kawaii",
-      category: "Puzzle",
-      players: "850",
-      image: "bg-gradient-to-br from-pink-500/20 to-rose-600/20 grayscale hover:grayscale-0",
-      action: () => alert("Bientôt disponible !"),
+      label: "Parties jouées",
+      value: userData.gamesPlayed.toString(),
+      icon: Zap,
+      color: "purple",
+      trend: loading ? "..." : "Total",
+      trendUp: true
     },
     {
-      title: "Battle Royale",
-      category: "Action",
-      players: "2.5k",
-      image: "bg-gradient-to-br from-orange-500/20 to-red-600/20 grayscale hover:grayscale-0",
-      action: () => alert("Bientôt disponible !"),
+      label: "Victoires",
+      value: userData.wins.toString(),
+      icon: Trophy,
+      color: "pink",
+      trend: `${winRate}% Win Rate`,
+      trendUp: winRate >= 50
+    },
+    {
+      label: "XP Total",
+      value: userData.xp.toString(),
+      icon: Flame,
+      color: "orange",
+      trend: `${xpRemaining} pour level up`,
+      trendUp: true
     },
   ];
 
@@ -54,7 +122,7 @@ const Dashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               className="text-4xl font-heading font-bold text-white mb-4"
             >
-              Bon retour, {username} ! 👋
+              Bon retour, {userData.username} ! 👋
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -100,13 +168,13 @@ const Dashboard = () => {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        {/* Left Column: Recommended Games */}
+        {/* Left Column: Top Games */}
         <div className="lg:col-span-2 space-y-8">
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-heading font-bold text-white flex items-center gap-2">
                 <Flame className="h-8 w-8 text-orange-500 fill-orange-500/20 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
-                Jeux Recommandés
+                Jeux les Plus Joués
               </h2>
               <button
                 onClick={() => navigate("/games")}
@@ -117,31 +185,52 @@ const Dashboard = () => {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {recommendedGames.map((game, index) => (
-                <motion.div
-                  key={game.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + index * 0.1 }}
-                  className="group relative aspect-video rounded-2xl overflow-hidden cursor-pointer border border-white/10"
-                  onClick={game.action}
-                >
-                  <div className={`absolute inset-0 bg-gradient-to-br from-white/10 to-black/50 transition-transform duration-500 group-hover:scale-110`} />
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-300" />
-
-                  <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                      <span className="inline-block px-2 py-1 rounded-md bg-white/10 backdrop-blur-md text-xs font-medium text-white mb-2 border border-white/10">
-                        {game.category}
-                      </span>
-                      <h3 className="text-xl font-bold text-white mb-1">{game.title}</h3>
-                      <p className="text-white/70 text-sm flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-                        <Users className="h-3 w-3" /> {game.players} joueurs
-                      </p>
+              {topGames.length > 0 ? (
+                topGames.map((game, index) => (
+                  <motion.div
+                    key={game.categoryId}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + index * 0.1 }}
+                    className="group relative aspect-video rounded-2xl overflow-hidden cursor-pointer border border-white/10"
+                    onClick={() => game.available && navigate(game.route)}
+                  >
+                    {/* Background Image */}
+                    <div className="absolute inset-0">
+                      <img
+                        src={categoryImages[game.categoryId] || animeQuizCover}
+                        alt={game.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90" />
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+
+                    {/* Content */}
+                    <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                      <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                        <span className="inline-block px-2 py-1 rounded-md bg-white/10 backdrop-blur-md text-xs font-medium text-white mb-2 border border-white/10">
+                          {game.difficulty}
+                        </span>
+                        <h3 className="text-xl font-bold text-white mb-1">{game.title}</h3>
+                        <p className="text-white/70 text-sm flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                          <Play className="h-3 w-3" /> {game.playCount} parties jouées
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Unavailable Overlay */}
+                    {!game.available && (
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                        <span className="text-white/80 text-sm font-medium">Bientôt disponible</span>
+                      </div>
+                    )}
+                  </motion.div>
+                ))
+              ) : (
+                <div className="col-span-2 text-center text-white/50 py-12">
+                  Aucun jeu disponible pour le moment
+                </div>
+              )}
             </div>
           </div>
         </div>

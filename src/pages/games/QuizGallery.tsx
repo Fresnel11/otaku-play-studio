@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Zap, Play, Clock, Trophy, Info, Shield, Calendar } from "lucide-react";
@@ -5,6 +6,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { cn } from "@/lib/utils";
 import { GlassButton } from "@/components/ui/GlassButton";
 import { toast } from "sonner";
+import { UniverseSelectorModal } from "@/components/games/UniverseSelectorModal";
 
 // Import assets
 import speedPulseCover from "@/assets/games/speed_pulse_cover.png";
@@ -13,6 +15,38 @@ import dailyChallengeCover from "@/assets/games/daily_challenge_cover.png";
 
 const QuizGallery = () => {
     const navigate = useNavigate();
+    const [showUniverseSelector, setShowUniverseSelector] = useState(false);
+    const [selectedGameMode, setSelectedGameMode] = useState<string | null>(null);
+
+    const handleGameSelect = (modeId: string) => {
+        setSelectedGameMode(modeId);
+        setShowUniverseSelector(true);
+    };
+
+    const handleUniverseSelect = (universeId: string) => {
+        setShowUniverseSelector(false);
+
+        if (!selectedGameMode) return;
+
+        let route = "";
+        switch (selectedGameMode) {
+            case "speed-pulse":
+                route = "/games/quiz/speed-pulse";
+                break;
+            case "survival":
+                route = "/games/survival";
+                break;
+            default:
+                return;
+        }
+
+        // Add theme parameter if not mixed
+        if (universeId !== 'mixed') {
+            route += `?theme=${universeId}`;
+        }
+
+        navigate(route);
+    };
 
     const quizModes = [
         {
@@ -27,7 +61,7 @@ const QuizGallery = () => {
                 { label: "Durée", value: "30s", icon: Clock },
                 { label: "Difficulté", value: "Moyenne", icon: Trophy },
             ],
-            action: () => navigate("/games/quiz/speed-pulse"),
+            action: () => handleGameSelect("speed-pulse"),
             available: true
         },
         {
@@ -42,7 +76,7 @@ const QuizGallery = () => {
                 { label: "Vies", value: "3", icon: Trophy },
                 { label: "Difficulté", value: "Difficile", icon: Trophy },
             ],
-            action: () => navigate("/games/survival"),
+            action: () => handleGameSelect("survival"),
             available: true
         },
         {
@@ -173,6 +207,12 @@ const QuizGallery = () => {
                         </motion.div>
                     ))}
                 </div>
+
+                <UniverseSelectorModal
+                    isOpen={showUniverseSelector}
+                    onClose={() => setShowUniverseSelector(false)}
+                    onSelectUniverse={handleUniverseSelect}
+                />
             </div>
         </DashboardLayout>
     );

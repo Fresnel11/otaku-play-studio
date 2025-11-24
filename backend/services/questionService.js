@@ -1,12 +1,21 @@
 const Question = require('../models/Question');
 
 // Get random questions for a game session
-const getRandomQuestions = async (count = 10, difficulty = null) => {
+const getRandomQuestions = async (count = 10, difficulty = null, category = null) => {
     try {
         let query = {};
 
         if (difficulty) {
             query.difficulty = difficulty;
+        }
+
+        if (category) {
+            // If category is 'mixed', we don't filter by category (or we explicitly exclude specific ones if needed)
+            // But for now, if category is provided and not 'mixed', we filter by it.
+            if (category.toLowerCase() !== 'mixed') {
+                // Case insensitive search for category
+                query.category = { $regex: new RegExp(`^${category}$`, 'i') };
+            }
         }
 
         // Get total count

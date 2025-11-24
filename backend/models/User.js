@@ -52,6 +52,16 @@ const userSchema = new mongoose.Schema({
         default: 0,
         min: 0
     },
+    gamesPlayed: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    wins: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
     role: {
         type: String,
         enum: ['user', 'admin'],

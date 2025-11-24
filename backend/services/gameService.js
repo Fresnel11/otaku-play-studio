@@ -1,6 +1,8 @@
 const GameSession = require('../models/GameSession');
 const Leaderboard = require('../models/Leaderboard');
 const User = require('../models/User');
+const GameCategory = require('../models/GameCategory');
+const { getCategoryForGameType } = require('../constants/gameMapping');
 
 // Create a new game session
 const createSession = async (userId, questions, gameType = 'speed-pulse') => {
@@ -10,6 +12,13 @@ const createSession = async (userId, questions, gameType = 'speed-pulse') => {
             gameType,
             answers: []
         });
+
+        // Increment play count for the game category
+        const categoryId = getCategoryForGameType(gameType);
+        await GameCategory.findOneAndUpdate(
+            { categoryId },
+            { $inc: { playCount: 1 } }
+        );
 
         return {
             sessionId: session._id,
@@ -25,6 +34,19 @@ const createSession = async (userId, questions, gameType = 'speed-pulse') => {
         };
     } catch (error) {
         throw new Error(`Error creating session: ${error.message}`);
+    }
+};
+
+// Get session
+const getSession = async (sessionId) => {
+    try {
+        const session = await GameSession.findById(sessionId);
+        if (!session) {
+            throw new Error('Session not found');
+        }
+        return session;
+    } catch (error) {
+        throw new Error(`Error getting session: ${error.message}`);
     }
 };
 
@@ -107,6 +129,13 @@ const submitGameResults = async (sessionId, userId, answers) => {
         // Update leaderboard with game type
         await updateLeaderboard(userId, totalScore, gameType);
 
+        // Update global user stats (gamesPlayed and wins)
+        // Consider it a win if user got 60% or more correct answers
+        const totalQuestions = answers.length;
+        const winThreshold = 0.6; // 60% correct answers
+        const isWin = (correctAnswers / totalQuestions) >= winThreshold;
+        await updateUserStats(userId, isWin);
+
         // Award XP to user
         const xpEarned = await awardXP(userId, totalScore);
 
@@ -151,6 +180,35 @@ const updateLeaderboard = async (userId, score, gameType = 'speed-pulse') => {
         return leaderboardEntry;
     } catch (error) {
         throw new Error(`Error updating leaderboard: ${error.message}`);
+    }
+};
+
+// Update global user stats (gamesPlayed and wins)
+const updateUserStats = async (userId, isWin = false) => {
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        // Increment games played
+        user.gamesPlayed = (user.gamesPlayed || 0) + 1;
+
+        // Increment wins if the game was won
+        if (isWin) {
+            user.wins = (user.wins || 0) + 1;
+        }
+
+        await user.save();
+
+        return {
+            gamesPlayed: user.gamesPlayed,
+            wins: user.wins,
+            winRate: user.gamesPlayed > 0 ? (user.wins / user.gamesPlayed * 100).toFixed(2) : 0
+        };
+    } catch (error) {
+        throw new Error(`Error updating user stats: ${error.message}`);
     }
 };
 
@@ -245,9 +303,11 @@ const getUserStats = async (userId, gameType = 'speed-pulse') => {
 
 module.exports = {
     createSession,
+    getSession,
     calculateScore,
     submitGameResults,
     updateLeaderboard,
+    updateUserStats,
     awardXP,
     getLeaderboard,
     getUserStats

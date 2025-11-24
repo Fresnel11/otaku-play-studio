@@ -41,19 +41,19 @@ const getAuthHeader = () => {
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-export const startGame = async (userId: string): Promise<GameSession> => {
+export const startGame = async (userId: string, category?: string): Promise<GameSession> => {
     const response = await axios.post(
         `${API_URL}/speed-pulse/start`,
-        { userId },
+        { userId, category },
         { headers: getAuthHeader() }
     );
     return response.data.data;
 };
 
-export const startSurvivalGame = async (userId: string): Promise<GameSession> => {
+export const startSurvivalGame = async (userId: string, category?: string): Promise<GameSession> => {
     const response = await axios.post(
         `${API_URL}/survival/start`,
-        { userId },
+        { userId, category },
         { headers: getAuthHeader() }
     );
     return response.data.data;

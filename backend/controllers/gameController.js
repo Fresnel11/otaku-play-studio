@@ -27,7 +27,7 @@ const getQuestions = async (req, res) => {
 // @access  Private
 const startGame = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const { userId, category } = req.body;
 
         if (!userId) {
             return res.status(400).json({
@@ -37,7 +37,7 @@ const startGame = async (req, res) => {
         }
 
         // Get random questions
-        const questions = await questionService.getRandomQuestions(10);
+        const questions = await questionService.getRandomQuestions(10, null, category);
 
         // Create session
         const session = await gameService.createSession(userId, questions);
@@ -61,7 +61,7 @@ const startSurvival = async (req, res) => {
     try {
         console.log('🎮 Starting Survival Mode...');
         console.log('Request body:', req.body);
-        const { userId } = req.body;
+        const { userId, category } = req.body;
 
         if (!userId) {
             console.log('❌ No userId provided');
@@ -72,10 +72,10 @@ const startSurvival = async (req, res) => {
         }
 
         console.log('✅ UserId:', userId);
-        console.log('📚 Fetching 50 random questions...');
+        console.log(`📚 Fetching 50 random questions (Category: ${category || 'Mixed'})...`);
 
         // Get random questions (fetch 50 for survival mode)
-        const questions = await questionService.getRandomQuestions(50);
+        const questions = await questionService.getRandomQuestions(50, null, category);
         console.log(`✅ Got ${questions.length} questions`);
 
         console.log('💾 Creating session...');

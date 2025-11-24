@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { startGame, submitGame, Question, GameResult } from '../../services/gameService';
 import PulseTimer from '../../components/games/PulseTimer';
 import { Zap, Trophy, Timer, ArrowLeft, Sparkles, Flame, Target, RotateCcw, Share2 } from 'lucide-react';
@@ -12,6 +12,9 @@ import { toast } from 'sonner';
 
 const SpeedPulseGame: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const theme = searchParams.get('theme');
+
     const [gameState, setGameState] = useState<'intro' | 'playing' | 'finished'>('intro');
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -30,6 +33,7 @@ const SpeedPulseGame: React.FC = () => {
     const [roundStartTime, setRoundStartTime] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
     const [showFeedback, setShowFeedback] = useState<'correct' | 'wrong' | null>(null);
+    const [isTimerActive, setIsTimerActive] = useState(false);
 
     // User Info
     const [userId, setUserId] = useState<string | null>(null);
@@ -65,7 +69,7 @@ const SpeedPulseGame: React.FC = () => {
         if (!userId) return;
 
         try {
-            const session = await startGame(userId);
+            const session = await startGame(userId, theme || undefined);
             setQuestions(session.questions);
             setSessionId(session.sessionId);
             setGameState('playing');
@@ -75,10 +79,6 @@ const SpeedPulseGame: React.FC = () => {
             console.error(error);
         }
     };
-
-    const [isTimerActive, setIsTimerActive] = useState(false);
-
-    // ...
 
     const startRound = () => {
         setIsQuestionVisible(false);
@@ -159,8 +159,15 @@ const SpeedPulseGame: React.FC = () => {
         setShowFeedback('wrong');
         setCombo(0);
         setIsOverdrive(false);
+        setIsTimerActive(false); // Stop the timer loop
 
         const currentQuestion = questions[currentQuestionIndex];
+
+        if (!currentQuestion) {
+            console.error("Current question is undefined in handleTimeout");
+            return;
+        }
+
         const newAnswer = {
             questionId: currentQuestion._id,
             userAnswer: -1, // Timeout

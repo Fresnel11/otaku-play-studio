@@ -99,6 +99,8 @@ const getUserById = async (userId) => {
         bio: user.bio,
         level: user.level,
         xp: user.xp,
+        gamesPlayed: user.gamesPlayed || 0,
+        wins: user.wins || 0,
         createdAt: user.createdAt
     };
 };
@@ -147,6 +149,8 @@ const updateProfile = async (userId, updates) => {
         bio: user.bio,
         level: user.level,
         xp: user.xp,
+        gamesPlayed: user.gamesPlayed || 0,
+        wins: user.wins || 0,
         createdAt: user.createdAt
     };
 };
