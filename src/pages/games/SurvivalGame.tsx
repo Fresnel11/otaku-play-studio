@@ -185,13 +185,15 @@ const SurvivalGame: React.FC = () => {
     };
 
     const handleTimeout = () => {
-        if (selectedAnswer !== null) return;
+        // Guard: only process if timer is active and no answer selected
+        if (selectedAnswer !== null || !isTimerActive) return;
 
+        // Stop timer immediately to prevent multiple calls
+        setIsTimerActive(false);
         setShowFeedback('wrong');
         setCombo(0);
         setLives(prev => prev - 1);
         triggerDamageEffect();
-        setIsTimerActive(false); // Stop the timer loop
 
         const currentQuestion = questions[currentQuestionIndex];
 
@@ -390,6 +392,7 @@ const SurvivalGame: React.FC = () => {
                 {/* Timer */}
                 <div className="w-full max-w-xl mb-8">
                     <PulseTimer
+                        key={currentQuestionIndex} // Force remount on question change
                         duration={timerDuration}
                         isActive={isTimerActive && selectedAnswer === null}
                         onComplete={handleTimeout}

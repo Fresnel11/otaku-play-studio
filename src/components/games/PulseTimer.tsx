@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 
 interface PulseTimerProps {
@@ -10,10 +10,12 @@ interface PulseTimerProps {
 
 const PulseTimer: React.FC<PulseTimerProps> = ({ duration, onComplete, isActive, isOverdrive }) => {
     const [timeLeft, setTimeLeft] = useState(duration);
+    const hasCompletedRef = useRef(false);
 
     useEffect(() => {
         if (isActive) {
             setTimeLeft(duration);
+            hasCompletedRef.current = false;
         }
     }, [isActive, duration]);
 
@@ -31,7 +33,8 @@ const PulseTimer: React.FC<PulseTimerProps> = ({ duration, onComplete, isActive,
     }, [isActive, isOverdrive]);
 
     useEffect(() => {
-        if (timeLeft === 0 && isActive) {
+        if (timeLeft === 0 && isActive && !hasCompletedRef.current) {
+            hasCompletedRef.current = true;
             onComplete();
         }
     }, [timeLeft, isActive, onComplete]);
