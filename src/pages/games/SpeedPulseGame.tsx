@@ -9,6 +9,8 @@ import { cn } from '@/lib/utils';
 import GameResultScreen from '@/components/games/GameResultScreen';
 import GlitchText from '@/components/games/GlitchText';
 import { toast } from 'sonner';
+import narutoBackground from '@/assets/naruto_universe.jpg';
+import multiverseBackground from '@/assets/all_manga.jpg';
 
 const SpeedPulseGame: React.FC = () => {
     const navigate = useNavigate();
@@ -314,7 +316,9 @@ const SpeedPulseGame: React.FC = () => {
                 <div
                     className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
                     style={{
-                        backgroundImage: `url('/speed_pulse_battle_bg_1763737006385.png')`,
+                        backgroundImage: theme === 'naruto'
+                            ? `url(${narutoBackground})`
+                            : `url(${multiverseBackground})`,
                     }}
                 />
                 <div className="absolute inset-0 bg-[#0a0a0a]/50 z-0" /> {/* Dark Overlay for readability */}
@@ -466,7 +470,7 @@ const SpeedPulseGame: React.FC = () => {
                 <AnimatePresence mode="wait">
                     <motion.img
                         key={isOverdrive ? 'super' : 'normal'}
-                        src={isOverdrive ? '/speed_pulse_mascot_super.png' : '/speed_pulse_mascot_normal.png'}
+                        src={isOverdrive ? '/speed_pulse_mascot_super-removebg.png' : '/speed_pulse_mascot_normal-removebg-preview.png'}
                         initial={{ opacity: 0, scale: 0.9, x: 50 }}
                         animate={{
                             opacity: 1,

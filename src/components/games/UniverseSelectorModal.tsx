@@ -37,12 +37,12 @@ const UNIVERSES = [
     {
         id: 'one-piece',
         title: 'One Piece',
-        description: 'Bientôt disponible...',
+        description: 'Pars à la recherche du trésor ultime !',
         icon: Anchor,
         color: 'from-blue-500 to-cyan-600',
         textColor: 'text-blue-400',
         image: onePieceImg,
-        available: false
+        available: true
     }
 ];
 

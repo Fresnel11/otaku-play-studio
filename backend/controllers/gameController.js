@@ -36,8 +36,8 @@ const startGame = async (req, res) => {
             });
         }
 
-        // Get random questions
-        const questions = await questionService.getRandomQuestions(10, null, category);
+        // Get random questions with tracking to avoid repetition
+        const questions = await questionService.getRandomQuestionsWithTracking(userId, 10, null, category);
 
         // Create session
         const session = await gameService.createSession(userId, questions);
@@ -74,8 +74,8 @@ const startSurvival = async (req, res) => {
         console.log('✅ UserId:', userId);
         console.log(`📚 Fetching 50 random questions (Category: ${category || 'Mixed'})...`);
 
-        // Get random questions (fetch 50 for survival mode)
-        const questions = await questionService.getRandomQuestions(50, null, category);
+        // Get 50 random questions for survival mode with tracking
+        const questions = await questionService.getRandomQuestionsWithTracking(userId, 50, null, category);
         console.log(`✅ Got ${questions.length} questions`);
 
         console.log('💾 Creating session...');

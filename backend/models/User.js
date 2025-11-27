@@ -67,6 +67,16 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
+    recentlySeenQuestions: [{
+        questionId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Question'
+        },
+        seenAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
     createdAt: {
         type: Date,
         default: Date.now
