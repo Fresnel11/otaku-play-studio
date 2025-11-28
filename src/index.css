@@ -85,6 +85,23 @@ All colors MUST be HSL.
   .fun-glow-accent {
     box-shadow: var(--glow-accent);
   }
+
+  /* 3D Transform Utilities */
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
 }
 
 @layer base {

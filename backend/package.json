@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "seed:questions": "node seeder/seedQuestions.js"
+    "seed:questions": "node seeder/seedQuestions.js",
+    "seed:demon-slayer": "node scripts/seedDemonSlayerQuestions.js"
   },
   "keywords": [],
   "author": "",

@@ -35,8 +35,8 @@ const Games = () => {
             icon: Brain,
             image: memoryGameCover,
             color: "from-cyan-500 to-blue-500",
-            action: () => { },
-            available: false,
+            action: () => navigate("/games/memory"),
+            available: true,
             difficulty: "Moyen",
             players: "Solo"
         },

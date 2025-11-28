@@ -33,17 +33,17 @@ const StatCard = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay, duration: 0.5 }}
-            className="relative overflow-hidden rounded-2xl border border-white/10 p-6 backdrop-blur-md bg-white/[0.03] hover:bg-white/[0.05] transition-colors group"
+            className="relative overflow-hidden rounded-xl sm:rounded-2xl border border-white/10 p-3 sm:p-4 lg:p-6 backdrop-blur-md bg-white/[0.03] hover:bg-white/[0.05] transition-colors group"
         >
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
             <div className="relative z-10 flex items-start justify-between">
-                <div>
-                    <p className="text-sm font-medium text-white/40 uppercase tracking-wider">{label}</p>
-                    <h3 className="mt-2 text-3xl font-heading font-bold text-white tracking-tight">{value}</h3>
+                <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-medium text-white/40 uppercase tracking-wider truncate">{label}</p>
+                    <h3 className="mt-1 sm:mt-2 text-xl sm:text-2xl lg:text-3xl font-heading font-bold text-white tracking-tight">{value}</h3>
                     {trend && (
                         <p className={cn(
-                            "mt-2 text-xs font-medium flex items-center gap-1",
+                            "mt-1 sm:mt-2 text-xs font-medium flex items-center gap-1 truncate",
                             trendUp ? "text-emerald-400" : "text-rose-400"
                         )}>
                             {trendUp ? "↑" : "↓"} {trend}
@@ -51,10 +51,10 @@ const StatCard = ({
                     )}
                 </div>
                 <div className={cn(
-                    "p-3 rounded-xl border transition-all duration-300 group-hover:scale-110",
+                    "p-2 sm:p-3 rounded-lg sm:rounded-xl border transition-all duration-300 group-hover:scale-110 flex-shrink-0",
                     colorStyles[color]
                 )}>
-                    <Icon className="h-6 w-6" />
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
                 </div>
             </div>
         </motion.div>

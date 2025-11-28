@@ -107,7 +107,7 @@ const Login = () => {
       </motion.div>
 
       {/* Right Side - Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 relative z-20">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 relative z-20">
         {/* Mobile Background Image */}
         <div className="absolute inset-0 lg:hidden z-0">
           <AnimatePresence mode="wait">
@@ -129,7 +129,7 @@ const Login = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="w-full max-w-md relative z-10"
+          className="w-full max-w-sm sm:max-w-md relative z-10"
         >
           <button
             onClick={() => navigate("/")}
@@ -139,7 +139,7 @@ const Login = () => {
             Retour à l'accueil
           </button>
 
-          <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.05] rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+          <div className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.05] rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
             {/* Subtle Decorative elements */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px] pointer-events-none" />
@@ -149,17 +149,17 @@ const Login = () => {
                 <div className="inline-flex p-3 rounded-2xl bg-white/5 border border-white/10 mb-4 shadow-inner">
                   <Sparkles className="h-6 w-6 text-white/70" />
                 </div>
-                <h1 className="text-3xl font-heading font-bold text-white mb-2 tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white mb-2 tracking-tight">
                   Connexion
                 </h1>
-                <p className="text-white/40 text-sm">
+                <p className="text-white/40 text-xs sm:text-sm">
                   Accède à ton espace Otaku
                 </p>
               </div>
 
-              <form onSubmit={handleLogin} className="space-y-5">
+              <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1">
+                  <Label htmlFor="email" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1 hidden sm:block">
                     Email
                   </Label>
                   <GlassInput
@@ -174,7 +174,7 @@ const Login = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1">
+                  <Label htmlFor="password" className="text-white/60 text-xs uppercase tracking-wider font-semibold ml-1 hidden sm:block">
                     Mot de passe
                   </Label>
                   <GlassInput
@@ -192,15 +192,15 @@ const Login = () => {
                   type="submit"
                   variant="glass-accent"
                   size="lg"
-                  className="w-full mt-6"
+                  className="w-full mt-4 sm:mt-6"
                   disabled={isLoading}
                 >
                   {isLoading ? "Connexion..." : "Se connecter ✨"}
                 </GlassButton>
               </form>
 
-              <div className="mt-8 text-center">
-                <p className="text-white/30 text-sm">
+              <div className="mt-6 sm:mt-8 text-center">
+                <p className="text-white/30 text-xs sm:text-sm">
                   Pas encore de compte ?{" "}
                   <button
                     onClick={() => navigate("/register")}

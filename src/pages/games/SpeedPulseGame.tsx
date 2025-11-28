@@ -11,6 +11,7 @@ import GlitchText from '@/components/games/GlitchText';
 import { toast } from 'sonner';
 import narutoBackground from '@/assets/naruto_universe.jpg';
 import multiverseBackground from '@/assets/all_manga.jpg';
+import demonSlayerBackground from '@/assets/demon_slayer.jpg';
 
 const SpeedPulseGame: React.FC = () => {
     const navigate = useNavigate();
@@ -219,26 +220,26 @@ const SpeedPulseGame: React.FC = () => {
 
     if (gameState === 'intro') {
         return (
-            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 overflow-hidden relative">
+            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden relative">
                 {/* Background Blobs */}
                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                    <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-500/10 rounded-full blur-[120px]" />
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[120px]" />
+                    <div className="absolute top-[-10%] left-[-10%] w-[60%] sm:w-[50%] h-[60%] sm:h-[50%] bg-purple-500/10 rounded-full blur-[80px] sm:blur-[120px]" />
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[60%] sm:w-[50%] h-[60%] sm:h-[50%] bg-blue-500/10 rounded-full blur-[80px] sm:blur-[120px]" />
                 </div>
 
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.05] p-12 rounded-3xl max-w-lg w-full text-center shadow-2xl relative z-10"
+                    className="bg-white/[0.02] backdrop-blur-2xl border border-white/[0.05] p-6 sm:p-8 md:p-10 lg:p-12 rounded-2xl sm:rounded-3xl max-w-sm sm:max-w-md lg:max-w-lg w-full text-center shadow-2xl relative z-10"
                 >
-                    <div className="inline-flex p-4 rounded-2xl bg-white/5 border border-white/10 mb-6 shadow-inner">
-                        <Zap className="w-12 h-12 text-yellow-400 fill-yellow-400/20" />
+                    <div className="inline-flex p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 mb-4 sm:mb-6 shadow-inner">
+                        <Zap className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-yellow-400 fill-yellow-400/20" />
                     </div>
 
-                    <h1 className="text-5xl font-heading font-bold text-white mb-4 tracking-tight">
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-white mb-3 sm:mb-4 tracking-tight">
                         SpeedPulse
                     </h1>
-                    <p className="text-white/60 text-lg mb-8">
+                    <p className="text-white/60 text-sm sm:text-base lg:text-lg mb-6 sm:mb-8 leading-relaxed px-2 sm:px-0">
                         Réponds vite, enchaîne les combos et active l'Overdrive pour exploser le score.
                     </p>
 
@@ -246,16 +247,16 @@ const SpeedPulseGame: React.FC = () => {
                         onClick={handleStartGame}
                         size="xl"
                         variant="glass-accent"
-                        className="w-full text-lg font-bold"
+                        className="w-full text-base sm:text-lg font-bold py-3 sm:py-4"
                     >
                         Lancer la partie 🚀
                     </GlassButton>
 
                     <button
                         onClick={() => navigate('/games')}
-                        className="mt-6 text-white/40 hover:text-white text-sm transition-colors flex items-center justify-center gap-2 mx-auto"
+                        className="mt-4 sm:mt-6 text-white/40 hover:text-white text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 mx-auto"
                     >
-                        <ArrowLeft className="w-4 h-4" /> Retour
+                        <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" /> Retour
                     </button>
                 </motion.div>
             </div>
@@ -318,6 +319,8 @@ const SpeedPulseGame: React.FC = () => {
                     style={{
                         backgroundImage: theme === 'naruto'
                             ? `url(${narutoBackground})`
+                            : theme === 'demon-slayer'
+                            ? `url(${demonSlayerBackground})`
                             : `url(${multiverseBackground})`,
                     }}
                 />
@@ -337,48 +340,50 @@ const SpeedPulseGame: React.FC = () => {
             </div>
 
             {/* Header / HUD */}
-            <div className="relative z-10 p-6 flex justify-between items-center max-w-6xl mx-auto w-full">
-                <div className="flex items-center gap-6">
+            <div className="relative z-10 p-3 sm:p-4 md:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center max-w-6xl mx-auto w-full gap-3 sm:gap-0">
+                <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
                     <div className="flex flex-col">
                         <span className="text-white/40 text-xs uppercase tracking-wider font-semibold">Score</span>
-                        <span className="text-3xl font-bold text-white font-heading">{score.toLocaleString()}</span>
+                        <span className="text-2xl sm:text-3xl font-bold text-white font-heading">{score.toLocaleString()}</span>
                     </div>
 
                     {combo > 1 && (
                         <motion.div
                             initial={{ scale: 0, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20"
+                            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20"
                         >
-                            <Zap className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                            <span className="text-yellow-400 font-bold text-sm">{combo}x COMBO</span>
+                            <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400" />
+                            <span className="text-yellow-400 font-bold text-xs sm:text-sm">{combo}x COMBO</span>
                         </motion.div>
                     )}
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-end">
                     {isOverdrive && (
                         <motion.div
                             animate={{ opacity: [0.6, 1, 0.6] }}
                             transition={{ duration: 1.5, repeat: Infinity }}
-                            className="flex items-center gap-2 px-4 py-1.5 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-full text-xs font-bold tracking-wider shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+                            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-1.5 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-full text-xs font-bold tracking-wider shadow-[0_0_15px_rgba(168,85,247,0.2)]"
                         >
                             <Flame className="w-3 h-3 fill-current" />
-                            OVERDRIVE
+                            <span className="hidden sm:inline">OVERDRIVE</span>
+                            <span className="sm:hidden">OD</span>
                         </motion.div>
                     )}
-                    <div className="h-10 px-4 rounded-full bg-white/5 border border-white/10 flex items-center justify-center gap-2 text-white/90 font-bold text-sm backdrop-blur-md">
-                        <span className="text-white/40 font-normal">Question</span>
+                    <div className="h-8 sm:h-10 px-2 sm:px-4 rounded-full bg-white/5 border border-white/10 flex items-center justify-center gap-1 sm:gap-2 text-white/90 font-bold text-xs sm:text-sm backdrop-blur-md">
+                        <span className="text-white/40 font-normal hidden sm:inline">Question</span>
+                        <span className="text-white/40 font-normal sm:hidden">Q</span>
                         {currentQuestionIndex + 1} <span className="text-white/20">/</span> {questions.length}
                     </div>
                 </div>
             </div>
 
             {/* Main Game Area */}
-            <div className="flex-1 flex flex-col items-center justify-center relative z-10 max-w-4xl mx-auto w-full p-6">
+            <div className="flex-1 flex flex-col items-center justify-center relative z-10 max-w-4xl mx-auto w-full p-3 sm:p-4 md:p-6">
 
                 {/* Timer */}
-                <div className="w-full max-w-xl mb-12">
+                <div className="w-full max-w-sm sm:max-w-md lg:max-w-xl mb-6 sm:mb-8 lg:mb-12">
                     <PulseTimer
                         key={currentQuestionIndex} // Force remount on question change
                         duration={10}
@@ -389,7 +394,7 @@ const SpeedPulseGame: React.FC = () => {
                 </div>
 
                 {/* Question */}
-                <div className="w-full mb-12 min-h-[160px] flex items-center justify-center text-center">
+                <div className="w-full mb-6 sm:mb-8 lg:mb-12 min-h-[100px] sm:min-h-[120px] lg:min-h-[160px] flex items-center justify-center text-center px-2">
                     <AnimatePresence mode="wait">
                         {isQuestionVisible ? (
                             <motion.h2
@@ -397,7 +402,7 @@ const SpeedPulseGame: React.FC = () => {
                                 initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
                                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                                 exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
-                                className="text-3xl md:text-4xl font-bold text-white leading-tight drop-shadow-xl"
+                                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight drop-shadow-xl"
                             >
                                 <GlitchText text={currentQuestion?.question || ""} />
                             </motion.h2>
@@ -412,7 +417,7 @@ const SpeedPulseGame: React.FC = () => {
                 </div>
 
                 {/* Options Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full">
                     {currentQuestion?.options.map((option, index) => {
                         let stateClass = "bg-white/[0.03] border-white/10 hover:bg-white/[0.08] hover:border-white/20 hover:scale-[1.02]";
 
@@ -435,26 +440,26 @@ const SpeedPulseGame: React.FC = () => {
                                 disabled={selectedAnswer !== null || !isQuestionVisible}
                                 onClick={() => handleAnswer(index)}
                                 className={`
-                  p-6 rounded-2xl border text-left transition-all duration-300
-                  flex items-center justify-between group relative overflow-hidden
+                  p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl border text-left transition-all duration-300
+                  flex items-center justify-between group relative overflow-hidden min-h-[60px] sm:min-h-[70px]
                   ${stateClass}
                 `}
                             >
-                                <span className="text-lg font-medium relative z-10">
+                                <span className="text-sm sm:text-base lg:text-lg font-medium relative z-10 leading-tight pr-2">
                                     {option}
                                 </span>
                                 {selectedAnswer === index && (
                                     <motion.span
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
-                                        className="relative z-10"
+                                        className="relative z-10 flex-shrink-0"
                                     >
                                         {index === currentQuestion.correctAnswer ? (
-                                            <Sparkles className="w-5 h-5 text-green-400" />
+                                            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                                         ) : (
-                                            <div className="w-5 h-5 rounded-full border-2 border-red-400 flex items-center justify-center">
-                                                <div className="w-3 h-0.5 bg-red-400 rotate-45 absolute" />
-                                                <div className="w-3 h-0.5 bg-red-400 -rotate-45 absolute" />
+                                            <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-red-400 flex items-center justify-center">
+                                                <div className="w-2 sm:w-3 h-0.5 bg-red-400 rotate-45 absolute" />
+                                                <div className="w-2 sm:w-3 h-0.5 bg-red-400 -rotate-45 absolute" />
                                             </div>
                                         )}
                                     </motion.span>
@@ -466,7 +471,7 @@ const SpeedPulseGame: React.FC = () => {
             </div>
 
             {/* Mascot */}
-            <div className="fixed bottom-0 right-0 md:right-10 z-20 w-48 md:w-80 pointer-events-none">
+            <div className="fixed bottom-0 right-0 sm:right-2 md:right-10 z-20 w-32 sm:w-40 md:w-48 lg:w-80 pointer-events-none">
                 <AnimatePresence mode="wait">
                     <motion.img
                         key={isOverdrive ? 'super' : 'normal'}

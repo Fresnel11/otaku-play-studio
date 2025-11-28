@@ -242,27 +242,27 @@ const SurvivalGame: React.FC = () => {
 
     if (gameState === 'intro') {
         return (
-            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 overflow-hidden relative">
+            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-3 sm:p-4 lg:p-6 overflow-hidden relative">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-900/20 via-[#0a0a0a] to-[#0a0a0a]" />
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="bg-white/[0.02] backdrop-blur-2xl border border-red-500/20 p-12 rounded-3xl max-w-lg w-full text-center shadow-2xl relative z-10"
+                    className="bg-white/[0.02] backdrop-blur-2xl border border-red-500/20 p-6 sm:p-8 md:p-10 lg:p-12 rounded-2xl sm:rounded-3xl max-w-sm sm:max-w-md lg:max-w-lg w-full text-center shadow-2xl relative z-10"
                 >
-                    <div className="inline-flex p-4 rounded-2xl bg-red-500/10 border border-red-500/20 mb-6 shadow-inner">
-                        <Skull className="w-12 h-12 text-red-500" />
+                    <div className="inline-flex p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-red-500/10 border border-red-500/20 mb-4 sm:mb-6 shadow-inner">
+                        <Skull className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-red-500" />
                     </div>
-                    <h1 className="text-5xl font-heading font-bold text-white mb-4 tracking-tight">
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-white mb-3 sm:mb-4 tracking-tight">
                         Survival Mode
                     </h1>
-                    <p className="text-white/60 text-lg mb-8">
+                    <p className="text-white/60 text-sm sm:text-base lg:text-lg mb-6 sm:mb-8 leading-relaxed px-2 sm:px-0">
                         3 Vies. Difficulté croissante. Jusqu'où iras-tu ?
                     </p>
-                    <GlassButton onClick={handleStartGame} size="xl" className="w-full text-lg font-bold bg-red-600/20 hover:bg-red-600/30 border-red-500/50">
+                    <GlassButton onClick={handleStartGame} size="xl" className="w-full text-base sm:text-lg font-bold bg-red-600/20 hover:bg-red-600/30 border-red-500/50 py-3 sm:py-4">
                         Survivre 💀
                     </GlassButton>
-                    <button onClick={() => navigate('/games')} className="mt-6 text-white/40 hover:text-white text-sm transition-colors flex items-center justify-center gap-2 mx-auto">
-                        <ArrowLeft className="w-4 h-4" /> Retour
+                    <button onClick={() => navigate('/games')} className="mt-4 sm:mt-6 text-white/40 hover:text-white text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 mx-auto">
+                        <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" /> Retour
                     </button>
                 </motion.div>
             </div>
@@ -272,38 +272,38 @@ const SurvivalGame: React.FC = () => {
     if (gameState === 'finished') {
         const finalScore = gameResult ? gameResult.finalScore : score;
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
+            <div className="min-h-screen bg-black flex items-center justify-center p-3 sm:p-4 lg:p-6 relative overflow-hidden">
                 {/* Blood/Red Overlay */}
                 <div className="absolute inset-0 bg-red-900/20 pointer-events-none" />
 
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="relative z-10 max-w-2xl w-full bg-black/80 border border-red-900/50 p-12 rounded-3xl text-center backdrop-blur-xl shadow-[0_0_100px_rgba(220,38,38,0.3)]"
+                    className="relative z-10 max-w-sm sm:max-w-lg lg:max-w-2xl w-full bg-black/80 border border-red-900/50 p-6 sm:p-8 md:p-10 lg:p-12 rounded-2xl sm:rounded-3xl text-center backdrop-blur-xl shadow-[0_0_100px_rgba(220,38,38,0.3)]"
                 >
-                    <h1 className="text-7xl font-black text-red-600 mb-2 tracking-tighter drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]">YOU DIED</h1>
-                    <p className="text-white/50 text-xl mb-8 uppercase tracking-widest">Game Over</p>
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-red-600 mb-2 tracking-tighter drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]">YOU DIED</h1>
+                    <p className="text-white/50 text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 uppercase tracking-widest">Game Over</p>
 
-                    <div className="grid grid-cols-3 gap-6 mb-12">
-                        <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
+                        <div className="p-3 sm:p-4 bg-white/5 rounded-xl sm:rounded-2xl border border-white/10">
                             <div className="text-white/40 text-xs uppercase mb-1">Vagues</div>
-                            <div className="text-3xl font-bold text-white">{wave}</div>
+                            <div className="text-2xl sm:text-3xl font-bold text-white">{wave}</div>
                         </div>
-                        <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                        <div className="p-3 sm:p-4 bg-white/5 rounded-xl sm:rounded-2xl border border-white/10">
                             <div className="text-white/40 text-xs uppercase mb-1">Score</div>
-                            <div className="text-3xl font-bold text-red-400">{finalScore.toLocaleString()}</div>
+                            <div className="text-2xl sm:text-3xl font-bold text-red-400">{finalScore.toLocaleString()}</div>
                         </div>
-                        <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                        <div className="p-3 sm:p-4 bg-white/5 rounded-xl sm:rounded-2xl border border-white/10">
                             <div className="text-white/40 text-xs uppercase mb-1">Combo Max</div>
-                            <div className="text-3xl font-bold text-yellow-400">{maxCombo}x</div>
+                            <div className="text-2xl sm:text-3xl font-bold text-yellow-400">{maxCombo}x</div>
                         </div>
                     </div>
 
-                    <div className="flex gap-4 justify-center">
-                        <GlassButton onClick={() => window.location.reload()} className="bg-white text-black hover:bg-gray-200">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                        <GlassButton onClick={() => window.location.reload()} className="bg-white text-black hover:bg-gray-200 py-3 sm:py-4 text-sm sm:text-base">
                             Rejouer
                         </GlassButton>
-                        <GlassButton onClick={() => navigate('/games')} className="bg-transparent border border-white/20 hover:bg-white/10">
+                        <GlassButton onClick={() => navigate('/games')} className="bg-transparent border border-white/20 hover:bg-white/10 py-3 sm:py-4 text-sm sm:text-base">
                             Quitter
                         </GlassButton>
                     </div>
@@ -376,21 +376,21 @@ const SurvivalGame: React.FC = () => {
             </div>
 
             {/* HUD */}
-            <div className="relative z-10 p-6 flex justify-between items-center max-w-6xl mx-auto w-full">
-                <div className="flex flex-col gap-2">
+            <div className="relative z-10 p-3 sm:p-4 md:p-6 flex sm:flex-row justify-between items-center max-w-6xl mx-auto w-full">
+                <div className="flex flex-col gap-1 sm:gap-2">
                     <HeartDisplay lives={lives} maxLives={5} />
                     <span className="text-white/40 text-xs font-bold tracking-wider">VAGUE {wave}</span>
                 </div>
                 <div className="flex flex-col items-end">
                     <span className="text-white/40 text-xs uppercase tracking-wider font-semibold">Score</span>
-                    <span className="text-3xl font-bold text-white font-heading">{score.toLocaleString()}</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-white font-heading">{score.toLocaleString()}</span>
                 </div>
             </div>
 
             {/* Game Area */}
-            <div className="flex-1 flex flex-col items-center justify-center relative z-10 max-w-4xl mx-auto w-full p-6">
+            <div className="flex-1 flex flex-col items-center justify-center relative z-10 max-w-4xl mx-auto w-full p-3 sm:p-4 md:p-6">
                 {/* Timer */}
-                <div className="w-full max-w-xl mb-8">
+                <div className="w-full max-w-sm sm:max-w-md lg:max-w-xl mb-6 sm:mb-8">
                     <PulseTimer
                         key={currentQuestionIndex} // Force remount on question change
                         duration={timerDuration}
@@ -401,7 +401,7 @@ const SurvivalGame: React.FC = () => {
                 </div>
 
                 {/* Question */}
-                <div className="w-full mb-12 min-h-[160px] flex items-center justify-center text-center">
+                <div className="w-full mb-6 sm:mb-8 lg:mb-12 min-h-[100px] sm:min-h-[120px] lg:min-h-[160px] flex items-center justify-center text-center px-2">
                     <AnimatePresence mode="wait">
                         {isQuestionVisible ? (
                             <motion.h2
@@ -409,7 +409,7 @@ const SurvivalGame: React.FC = () => {
                                 initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
                                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                                 exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
-                                className="text-3xl md:text-4xl font-bold text-white leading-tight drop-shadow-xl"
+                                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight drop-shadow-xl"
                             >
                                 <GlitchText text={currentQuestion?.question || ""} duration={500} />
                             </motion.h2>
@@ -424,7 +424,7 @@ const SurvivalGame: React.FC = () => {
                 </div>
 
                 {/* Options */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full">
                     {currentQuestion?.options.map((option, index) => {
                         let stateClass = "bg-white/[0.03] border-white/10 hover:bg-red-500/10 hover:border-red-500/30";
                         if (selectedAnswer !== null) {
@@ -445,9 +445,9 @@ const SurvivalGame: React.FC = () => {
                                 transition={{ delay: index * 0.05 }}
                                 disabled={selectedAnswer !== null || !isQuestionVisible}
                                 onClick={() => handleAnswer(index)}
-                                className={`p-6 rounded-2xl border text-left transition-all duration-300 flex items-center justify-between group relative overflow-hidden ${stateClass}`}
+                                className={`p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl border text-left transition-all duration-300 flex items-center justify-between group relative overflow-hidden min-h-[60px] sm:min-h-[70px] ${stateClass}`}
                             >
-                                <span className="text-lg font-medium relative z-10">{option}</span>
+                                <span className="text-sm sm:text-base lg:text-lg font-medium relative z-10 leading-tight">{option}</span>
                             </motion.button>
                         );
                     })}
