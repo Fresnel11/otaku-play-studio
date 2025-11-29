@@ -9,7 +9,7 @@ const gameSessionSchema = new mongoose.Schema({
     gameType: {
         type: String,
         default: 'speed-pulse',
-        enum: ['speed-pulse', 'survival']
+        enum: ['speed-pulse', 'survival', 'memory-kawaii']
     },
     score: {
         type: Number,
@@ -58,6 +58,10 @@ const gameSessionSchema = new mongoose.Schema({
             min: 0
         }
     }],
+    memoryStats: {
+        attempts: { type: Number, default: 0 },
+        pairsFound: { type: Number, default: 0 }
+    },
     completedAt: {
         type: Date,
         default: Date.now

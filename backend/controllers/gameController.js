@@ -188,11 +188,73 @@ const getUserStats = async (req, res) => {
     }
 };
 
+// @desc    Start a new memory game session
+// @route   POST /api/games/memory/start
+// @access  Private
+const startMemory = async (req, res) => {
+    try {
+        const { userId } = req.body;
+
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: 'User ID is required'
+            });
+        }
+
+        const session = await gameService.createMemorySession(userId);
+
+        res.status(201).json({
+            success: true,
+            data: session
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+// @desc    Submit memory game results
+// @route   POST /api/games/memory/submit
+// @access  Private
+const submitMemory = async (req, res) => {
+    try {
+        const { sessionId, userId, score, timeTaken, attempts, pairsFound, success } = req.body;
+
+        if (!sessionId || !userId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Session ID and User ID are required'
+            });
+        }
+
+        const results = await gameService.submitMemoryResults(
+            sessionId,
+            userId,
+            { score, timeTaken, attempts, pairsFound, success }
+        );
+
+        res.status(200).json({
+            success: true,
+            data: results
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 module.exports = {
     getQuestions,
     startGame,
     startSurvival,
+    startMemory,
     submitGame,
+    submitMemory,
     getLeaderboard,
     getUserStats
 };

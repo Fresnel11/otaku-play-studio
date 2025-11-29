@@ -9,7 +9,7 @@ const leaderboardSchema = new mongoose.Schema({
     gameType: {
         type: String,
         default: 'speed-pulse',
-        enum: ['speed-pulse', 'survival']
+        enum: ['speed-pulse', 'survival', 'memory-kawaii']
     },
     bestScore: {
         type: Number,

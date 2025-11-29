@@ -6,6 +6,7 @@
 const GAME_TYPE_TO_CATEGORY = {
     'speed-pulse': 'quiz-anime',
     'survival': 'quiz-anime',
+    'memory-kawaii': 'quiz-anime', // Mapping to general anime quiz category for now
     // Add more mappings as new game modes are created
 };
 
