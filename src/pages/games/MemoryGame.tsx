@@ -19,6 +19,8 @@ type GameMode = 'speed-rush' | 'survival' | 'zen';
 
 import GlitchText from '@/components/games/GlitchText';
 
+import { startMemoryGame, submitMemoryGame } from '@/services/gameService';
+
 // ... (imports remain the same)
 
 const MemoryGame: React.FC = () => {
@@ -34,6 +36,7 @@ const MemoryGame: React.FC = () => {
     const [isDamaged, setIsDamaged] = useState(false);
     const [showSurvivalIntro, setShowSurvivalIntro] = useState(false);
     const [gameResult, setGameResult] = useState<any>(null); // Type properly later
+    const [sessionId, setSessionId] = useState<string | null>(null);
 
     const universes: { id: Universe; label: string; bg: string }[] = [
         { id: 'naruto', label: 'Naruto', bg: narutoBackground },
@@ -60,7 +63,22 @@ const MemoryGame: React.FC = () => {
         return () => clearInterval(interval);
     }, [gameState, selectedMode, showSurvivalIntro]);
 
-    const handleStartGame = () => {
+    const handleStartGame = async () => {
+        try {
+            // Start session in backend
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (user.id) {
+                const session = await startMemoryGame(user.id);
+                // Store session ID in state or ref if needed, but for now we just start the game
+                // Ideally we should store sessionId to submit later. 
+                // Let's add a state for sessionId
+                setSessionId(session.sessionId);
+            }
+        } catch (error) {
+            console.error('Error starting game:', error);
+            // Continue anyway for offline play
+        }
+
         setGameState('playing');
         setScore(0);
         setTimer(0);
@@ -100,7 +118,7 @@ const MemoryGame: React.FC = () => {
         return { label: 'D', color: 'text-gray-400', shadow: 'shadow-gray-500/50' };
     };
 
-    const handleGameFinish = (result: any) => {
+    const handleGameFinish = async (result: any) => {
         // Calculate final score based on time and mode
         let finalScore = result.score;
         if (selectedMode === 'speed-rush') {
@@ -109,8 +127,28 @@ const MemoryGame: React.FC = () => {
         }
 
         const rank = calculateRank(finalScore, timer, result.attempts, selectedMode, result.success);
+        let xpEarned = 0;
 
-        setGameResult({ ...result, finalScore, time: timer, rank });
+        try {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (user.id && sessionId) {
+                const submitResult = await submitMemoryGame(sessionId, user.id, {
+                    score: finalScore,
+                    timeTaken: timer,
+                    attempts: result.attempts,
+                    pairsFound: result.success ? (selectedMode === 'speed-rush' ? 8 : 6) : 0, // Approximate
+                    success: result.success
+                });
+                xpEarned = submitResult.xpEarned;
+
+                // Update local user data if level changed
+                // This is simplified, ideally we fetch updated user profile
+            }
+        } catch (error) {
+            console.error('Error submitting game:', error);
+        }
+
+        setGameResult({ ...result, finalScore, time: timer, rank, xpEarned });
         setGameState('finished');
     };
 
@@ -160,25 +198,7 @@ const MemoryGame: React.FC = () => {
                             Exerce ta mémoire avec tes héros préférés. Choisis ton univers et ton mode de jeu !
                         </p>
 
-                        <div className="space-y-4">
-                            <h3 className="text-white font-semibold flex items-center gap-2">
-                                <Sparkles className="w-4 h-4 text-cyan-400" /> Univers
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                {universes.map((u) => (
-                                    <button
-                                        key={u.id}
-                                        onClick={() => setSelectedUniverse(u.id)}
-                                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedUniverse === u.id
-                                            ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.5)]'
-                                            : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
-                                            }`}
-                                    >
-                                        {u.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+
 
                         <div className="space-y-4">
                             <h3 className="text-white font-semibold flex items-center gap-2">
@@ -350,7 +370,8 @@ const MemoryGame: React.FC = () => {
                 stats={[
                     { label: 'Temps', value: `${gameResult?.time || 0}s`, icon: <Timer className="w-4 h-4" />, color: 'text-cyan-400' },
                     { label: 'Score', value: `${gameResult?.finalScore || 0}`, icon: <Trophy className="w-4 h-4" />, color: 'text-yellow-400' },
-                    { label: 'Essais', value: `${gameResult?.attempts || 0}`, icon: <Brain className="w-4 h-4" />, color: 'text-purple-400' }
+                    { label: 'Essais', value: `${gameResult?.attempts || 0}`, icon: <Brain className="w-4 h-4" />, color: 'text-purple-400' },
+                    { label: 'XP', value: `+${gameResult?.xpEarned || 0}`, icon: <Sparkles className="w-4 h-4" />, color: 'text-green-400' }
                 ]}
                 onReplay={() => setGameState('intro')}
                 onQuit={() => navigate('/games')}

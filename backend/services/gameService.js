@@ -301,11 +301,80 @@ const getUserStats = async (userId, gameType = 'speed-pulse') => {
     }
 };
 
+// Create a new memory game session
+const createMemorySession = async (userId) => {
+    try {
+        const session = await GameSession.create({
+            userId,
+            gameType: 'memory-kawaii',
+            answers: [] // No questions for memory game
+        });
+
+        // Increment play count for the game category
+        const categoryId = getCategoryForGameType('memory-kawaii');
+        await GameCategory.findOneAndUpdate(
+            { categoryId },
+            { $inc: { playCount: 1 } }
+        );
+
+        return {
+            sessionId: session._id
+        };
+    } catch (error) {
+        throw new Error(`Error creating memory session: ${error.message}`);
+    }
+};
+
+// Submit memory game results
+const submitMemoryResults = async (sessionId, userId, stats) => {
+    try {
+        const { score, timeTaken, attempts, pairsFound, success } = stats;
+
+        // Update session
+        await GameSession.findByIdAndUpdate(
+            sessionId,
+            {
+                score,
+                timeTaken,
+                memoryStats: {
+                    attempts,
+                    pairsFound
+                },
+                completedAt: Date.now()
+            },
+            { new: true }
+        );
+
+        // Update leaderboard
+        await updateLeaderboard(userId, score, 'memory-kawaii');
+
+        // Update global user stats
+        // Win if success is true
+        await updateUserStats(userId, success);
+
+        // Award XP to user
+        const xpEarned = await awardXP(userId, score);
+
+        // Get user rank
+        const rank = await getUserRank(userId, 'memory-kawaii');
+
+        return {
+            finalScore: score,
+            xpEarned,
+            rank
+        };
+    } catch (error) {
+        throw new Error(`Error submitting memory results: ${error.message}`);
+    }
+};
+
 module.exports = {
     createSession,
+    createMemorySession,
     getSession,
     calculateScore,
     submitGameResults,
+    submitMemoryResults,
     updateLeaderboard,
     updateUserStats,
     awardXP,

@@ -259,6 +259,66 @@ router.post('/survival/submit', gameController.submitGame);
 
 /**
  * @swagger
+ * /api/games/memory/start:
+ *   post:
+ *     summary: Démarre une nouvelle session de Memory Kawaii
+ *     tags: [Memory Kawaii]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *             properties:
+ *               userId:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Session créée avec succès
+ */
+router.post('/memory/start', gameController.startMemory);
+
+/**
+ * @swagger
+ * /api/games/memory/submit:
+ *   post:
+ *     summary: Soumet les résultats d'une partie de Memory Kawaii
+ *     tags: [Memory Kawaii]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - sessionId
+ *               - userId
+ *               - score
+ *             properties:
+ *               sessionId:
+ *                 type: string
+ *               userId:
+ *                 type: string
+ *               score:
+ *                 type: number
+ *               timeTaken:
+ *                 type: number
+ *               attempts:
+ *                 type: number
+ *               pairsFound:
+ *                 type: number
+ *               success:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Résultats enregistrés avec succès
+ */
+router.post('/memory/submit', gameController.submitMemory);
+
+/**
+ * @swagger
  * /api/games/speed-pulse/leaderboard:
  *   get:
  *     summary: Récupère le classement des meilleurs joueurs

@@ -93,6 +93,38 @@ export const submitSurvivalGame = async (
     return response.data.data;
 };
 
+export const startMemoryGame = async (userId: string): Promise<{ sessionId: string }> => {
+    const response = await axios.post(
+        `${API_URL}/memory/start`,
+        { userId },
+        { headers: getAuthHeader() }
+    );
+    return response.data.data;
+};
+
+export const submitMemoryGame = async (
+    sessionId: string,
+    userId: string,
+    result: {
+        score: number;
+        timeTaken: number;
+        attempts: number;
+        pairsFound: number;
+        success: boolean;
+    }
+): Promise<GameResult> => {
+    const response = await axios.post(
+        `${API_URL}/memory/submit`,
+        {
+            sessionId,
+            userId,
+            ...result
+        },
+        { headers: getAuthHeader() }
+    );
+    return response.data.data;
+};
+
 export const getLeaderboard = async (limit: number = 10): Promise<LeaderboardEntry[]> => {
     const response = await axios.get(`${API_URL}/speed-pulse/leaderboard?limit=${limit}`);
     return response.data.data;
