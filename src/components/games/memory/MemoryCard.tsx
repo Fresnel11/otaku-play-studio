@@ -26,20 +26,20 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
                 className="w-full h-full relative preserve-3d transition-all duration-500"
                 animate={{ rotateY: isFlipped || isMatched ? 180 : 0 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                style={{ transformStyle: 'preserve-3d' }}
             >
                 {/* Card Back (Hidden when flipped) */}
                 <div
                     className={cn(
-                        "absolute inset-0 w-full h-full backface-hidden rounded-xl shadow-lg border-2 border-white/10 flex items-center justify-center overflow-hidden",
-                        backColor,
+                        "absolute inset-0 w-full h-full backface-hidden rounded-xl shadow-lg border-2 border-white/10 overflow-hidden bg-black",
                         "group-hover:scale-[1.02] transition-transform duration-300"
                     )}
+                    style={{ backfaceVisibility: 'hidden' }}
                 >
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
                     <img
                         src={logoImage}
                         alt="Otaku Play Studio"
-                        className="w-2/3 h-auto object-contain opacity-90 drop-shadow-lg"
+                        className="w-full h-full object-cover"
                     />
                 </div>
 
@@ -49,7 +49,7 @@ const MemoryCard: React.FC<MemoryCardProps> = ({
                         "absolute inset-0 w-full h-full backface-hidden rounded-xl shadow-xl overflow-hidden bg-gray-900 border-2",
                         isMatched ? "border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]" : "border-white/20"
                     )}
-                    style={{ transform: "rotateY(180deg)" }}
+                    style={{ transform: "rotateY(180deg)", backfaceVisibility: 'hidden' }}
                 >
                     <img
                         src={image}

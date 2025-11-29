@@ -1,21 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Brain, Sparkles, Trophy, Timer, Zap } from 'lucide-react';
+import { ArrowLeft, Brain, Sparkles, Trophy, Timer, Zap, Heart } from 'lucide-react';
 import { GlassButton } from '@/components/ui/GlassButton';
 import { toast } from 'sonner';
 import MemoryBoard from '@/components/games/memory/MemoryBoard';
 import GameResultScreen from '@/components/games/GameResultScreen';
+import logoImage from '@/assets/images/logo.png';
 
 // Backgrounds (using same as SpeedPulse for consistency for now, or placeholders)
 import narutoBackground from '@/assets/naruto_universe.jpg';
 import multiverseBackground from '@/assets/all_manga.jpg';
 import demonSlayerBackground from '@/assets/demon_slayer.jpg';
-// We might need more backgrounds or specific ones for Memory
 
 type GameState = 'intro' | 'playing' | 'finished';
 type Universe = 'naruto' | 'demon-slayer' | 'one-piece' | 'dragon-ball' | 'multiverse';
 type GameMode = 'speed-rush' | 'survival' | 'zen';
+
+import GlitchText from '@/components/games/GlitchText';
+
+// ... (imports remain the same)
 
 const MemoryGame: React.FC = () => {
     const navigate = useNavigate();
@@ -26,6 +30,9 @@ const MemoryGame: React.FC = () => {
     // Game Stats
     const [score, setScore] = useState(0);
     const [timer, setTimer] = useState(0);
+    const [lives, setLives] = useState(5);
+    const [isDamaged, setIsDamaged] = useState(false);
+    const [showSurvivalIntro, setShowSurvivalIntro] = useState(false);
     const [gameResult, setGameResult] = useState<any>(null); // Type properly later
 
     const universes: { id: Universe; label: string; bg: string }[] = [
@@ -45,18 +52,26 @@ const MemoryGame: React.FC = () => {
     // Timer Logic
     useEffect(() => {
         let interval: NodeJS.Timeout;
-        if (gameState === 'playing' && selectedMode !== 'zen') {
+        if (gameState === 'playing' && selectedMode !== 'zen' && !showSurvivalIntro) {
             interval = setInterval(() => {
                 setTimer(prev => prev + 1);
             }, 1000);
         }
         return () => clearInterval(interval);
-    }, [gameState, selectedMode]);
+    }, [gameState, selectedMode, showSurvivalIntro]);
 
     const handleStartGame = () => {
         setGameState('playing');
         setScore(0);
         setTimer(0);
+        setLives(5); // Reset lives for survival mode
+
+        if (selectedMode === 'survival') {
+            setShowSurvivalIntro(true);
+            setTimeout(() => {
+                setShowSurvivalIntro(false);
+            }, 3000);
+        }
     };
 
     const handleGameFinish = (result: any) => {
@@ -69,6 +84,22 @@ const MemoryGame: React.FC = () => {
 
         setGameResult({ ...result, finalScore, time: timer });
         setGameState('finished');
+    };
+
+    const handleMistake = () => {
+        if (selectedMode !== 'survival') return;
+
+        // Damage Animation
+        setIsDamaged(true);
+        setTimeout(() => setIsDamaged(false), 300);
+
+        setLives(prev => {
+            const newLives = prev - 1;
+            if (newLives <= 0) {
+                handleGameFinish({ score: score, attempts: 0, success: false }); // Game Over
+            }
+            return newLives;
+        });
     };
 
     const getBackground = () => {
@@ -164,10 +195,13 @@ const MemoryGame: React.FC = () => {
                             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                             className="relative"
                         >
-                            {/* Placeholder for a cool 3D card or mascot */}
-                            <div className="w-64 h-96 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-3xl border border-white/10 backdrop-blur-xl flex items-center justify-center relative overflow-hidden group">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                                <Brain className="w-24 h-24 text-white/20 group-hover:text-cyan-400/50 transition-colors duration-500" />
+                            <div className="w-64 h-96 rounded-3xl overflow-hidden shadow-2xl group relative">
+                                <img
+                                    src={logoImage}
+                                    alt="Otaku Play Studio"
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                                 <div className="absolute bottom-6 left-6 right-6">
                                     <div className="text-white font-bold text-xl mb-1">Prêt ?</div>
                                     <div className="text-white/60 text-sm">Fais chauffer tes neurones !</div>
@@ -183,6 +217,50 @@ const MemoryGame: React.FC = () => {
     if (gameState === 'playing') {
         return (
             <div className="min-h-screen bg-[#0a0a0a] flex flex-col relative overflow-hidden">
+                {/* Survival Intro Animation */}
+                <AnimatePresence>
+                    {showSurvivalIntro && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center pointer-events-none"
+                        >
+                            <motion.div
+                                initial={{ scale: 0.5, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 1.5, opacity: 0 }}
+                                transition={{ duration: 0.5, type: "spring" }}
+                                className="text-center"
+                            >
+                                <h2 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-500 to-red-500 animate-pulse font-heading tracking-tighter mb-4">
+                                    <GlitchText text="SURVIVAL MODE" />
+                                </h2>
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                    className="text-2xl md:text-3xl text-white/80 font-bold"
+                                >
+                                    PRÊT ?
+                                </motion.div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Damage Overlay */}
+                <AnimatePresence>
+                    {isDamaged && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 z-50 bg-red-500/30 pointer-events-none"
+                        />
+                    )}
+                </AnimatePresence>
+
                 {/* Background */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     <img src={getBackground()} alt="Background" className="w-full h-full object-cover opacity-20" />
@@ -196,6 +274,19 @@ const MemoryGame: React.FC = () => {
                     </button>
 
                     <div className="flex items-center gap-8">
+                        {selectedMode === 'survival' && (
+                            <div className="flex flex-col items-center">
+                                <span className="text-white/40 text-xs uppercase font-bold">Vies</span>
+                                <div className="flex gap-1">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Heart
+                                            key={i}
+                                            className={`w-6 h-6 transition-all duration-300 ${i < lives ? 'text-red-500 fill-red-500' : 'text-white/20'}`}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                         <div className="flex flex-col items-center">
                             <span className="text-white/40 text-xs uppercase font-bold">Score</span>
                             <span className="text-2xl font-bold text-white font-heading">{score}</span>
@@ -212,12 +303,13 @@ const MemoryGame: React.FC = () => {
                 </div>
 
                 {/* Game Board */}
-                <div className="flex-1 flex items-center justify-center p-4 relative z-10">
+                <div className={`flex-1 flex items-center justify-center p-4 relative z-10 transition-transform duration-100 ${isDamaged ? 'translate-x-[-5px]' : ''}`}>
                     <MemoryBoard
                         universe={selectedUniverse}
                         mode={selectedMode}
                         onScoreUpdate={(points) => setScore(prev => prev + points)}
                         onGameFinish={handleGameFinish}
+                        onMistake={handleMistake}
                     />
                 </div>
             </div>

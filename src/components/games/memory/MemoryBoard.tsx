@@ -5,35 +5,43 @@ import { toast } from 'sonner';
 
 // Import assets
 import narutoImg from '@/assets/images/naruto.png';
+import sasukeImg from '@/assets/images/sasuke.png';
+import sakuraImg from '@/assets/images/sakura.png';
+import kakashiImg from '@/assets/images/kakashi.png';
+
 import onePieceImg from '@/assets/images/one-piece.png';
+
 import demonSlayerImg from '@/assets/images/demon-slayer.png';
+import nezukoImg from '@/assets/images/nezuko.png';
+import zenitsuImg from '@/assets/images/zenitsu.png';
+
 import dragonBallImg from '@/assets/images/dragon-ball.png';
 
 // Assets configuration
 const UNIVERSE_ASSETS: Record<string, string[]> = {
     'naruto': [
         narutoImg,
-        onePieceImg, // Mixing for demo
-        demonSlayerImg,
-        dragonBallImg,
-        narutoImg,
-        onePieceImg,
-        demonSlayerImg,
-        dragonBallImg,
+        sasukeImg,
+        sakuraImg,
+        kakashiImg,
+        narutoImg, // Duplicates to fill 8 pairs if needed, or cycle
+        sasukeImg,
+        sakuraImg,
+        kakashiImg,
     ],
     'demon-slayer': [
         demonSlayerImg,
-        narutoImg,
-        onePieceImg,
-        dragonBallImg,
+        nezukoImg,
+        zenitsuImg,
+        demonSlayerImg, // Need more assets for full variety, repeating for now
+        nezukoImg,
+        zenitsuImg,
         demonSlayerImg,
-        narutoImg,
-        onePieceImg,
-        dragonBallImg,
+        nezukoImg,
     ],
     'one-piece': [
         onePieceImg,
-        narutoImg,
+        narutoImg, // Placeholder until more OP assets
         demonSlayerImg,
         dragonBallImg,
         onePieceImg,
@@ -43,7 +51,7 @@ const UNIVERSE_ASSETS: Record<string, string[]> = {
     ],
     'dragon-ball': [
         dragonBallImg,
-        narutoImg,
+        narutoImg, // Placeholder until more DB assets
         onePieceImg,
         demonSlayerImg,
         dragonBallImg,
@@ -53,13 +61,13 @@ const UNIVERSE_ASSETS: Record<string, string[]> = {
     ],
     'multiverse': [
         narutoImg,
-        onePieceImg,
+        sasukeImg,
         demonSlayerImg,
-        dragonBallImg,
-        narutoImg,
+        nezukoImg,
         onePieceImg,
-        demonSlayerImg,
         dragonBallImg,
+        sakuraImg,
+        zenitsuImg,
     ]
 };
 
@@ -68,6 +76,7 @@ interface MemoryBoardProps {
     mode: string;
     onScoreUpdate: (points: number) => void;
     onGameFinish: (result: any) => void;
+    onMistake?: () => void;
 }
 
 interface Card {
@@ -78,7 +87,7 @@ interface Card {
     isMatched: boolean;
 }
 
-const MemoryBoard: React.FC<MemoryBoardProps> = ({ universe, mode, onScoreUpdate, onGameFinish }) => {
+const MemoryBoard: React.FC<MemoryBoardProps> = ({ universe, mode, onScoreUpdate, onGameFinish, onMistake }) => {
     const [cards, setCards] = useState<Card[]>([]);
     const [flippedCards, setFlippedCards] = useState<number[]>([]); // Store indices
     const [isProcessing, setIsProcessing] = useState(false);
@@ -145,9 +154,6 @@ const MemoryBoard: React.FC<MemoryBoardProps> = ({ universe, mode, onScoreUpdate
 
     const checkForMatch = (index1: number, index2: number) => {
         setAttempts(prev => prev + 1);
-        // Use functional update or access current cards via ref if needed, 
-        // but here we just need to compare the pairIds which are constant for the indices.
-        // We can use the 'cards' from the scope for reading pairId as that doesn't change.
         const card1 = cards[index1];
         const card2 = cards[index2];
 
@@ -165,10 +171,9 @@ const MemoryBoard: React.FC<MemoryBoardProps> = ({ universe, mode, onScoreUpdate
 
                 setMatches(prev => {
                     const newMatches = prev + 1;
-                    // Check win condition inside the update to ensure we have the latest match count
                     if (newMatches === cards.length / 2) {
                         setTimeout(() => {
-                            onGameFinish({ score: 1000 + (newMatches * 100), attempts: attempts + 1 });
+                            onGameFinish({ score: 1000 + (newMatches * 100), attempts: attempts + 1, success: true });
                         }, 500);
                     }
                     return newMatches;
@@ -182,6 +187,10 @@ const MemoryBoard: React.FC<MemoryBoardProps> = ({ universe, mode, onScoreUpdate
             }, 500);
         } else {
             // No match
+            if (mode === 'survival') {
+                onMistake?.();
+            }
+
             setTimeout(() => {
                 setCards(prevCards => {
                     const newCards = [...prevCards];
@@ -191,10 +200,6 @@ const MemoryBoard: React.FC<MemoryBoardProps> = ({ universe, mode, onScoreUpdate
                 });
                 setFlippedCards([]);
                 setIsProcessing(false);
-
-                if (mode === 'survival') {
-                    // Survival logic placeholder
-                }
             }, 1000);
         }
     };
