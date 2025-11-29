@@ -17,6 +17,27 @@ import zenitsuImg from '@/assets/images/zenitsu.png';
 
 import dragonBallImg from '@/assets/images/dragon-ball.png';
 
+// New Assets (User Provided)
+import extra1 from '@/assets/images/Gemini_Generated_Image_7yxnwc7yxnwc7yxn.png';
+import extra2 from '@/assets/images/Gemini_Generated_Image_33s1z233s1z233s1.png';
+import extra3 from '@/assets/images/Gemini_Generated_Image_87jipc87jipc87ji.png';
+import extra4 from '@/assets/images/Gemini_Generated_Image_an1my2an1my2an1m.png';
+import extra5 from '@/assets/images/Gemini_Generated_Image_clxbhdclxbhdclxb.png';
+import extra6 from '@/assets/images/Gemini_Generated_Image_einqfgeinqfgeinq.png';
+import extra7 from '@/assets/images/Gemini_Generated_Image_evbgp6evbgp6evbg.png';
+import extra8 from '@/assets/images/Gemini_Generated_Image_f2bh8jf2bh8jf2bh.png';
+import extra9 from '@/assets/images/Gemini_Generated_Image_g2edzag2edzag2ed.png';
+import extra10 from '@/assets/images/Gemini_Generated_Image_gfiwkbgfiwkbgfiw.png';
+import extra11 from '@/assets/images/Gemini_Generated_Image_gu4kzugu4kzugu4k.png';
+import extra12 from '@/assets/images/Gemini_Generated_Image_h32dxlh32dxlh32d.png';
+import extra13 from '@/assets/images/Gemini_Generated_Image_i2ioqki2ioqki2io.png';
+import extra14 from '@/assets/images/Gemini_Generated_Image_i06sr7i06sr7i06s.png';
+import extra15 from '@/assets/images/Gemini_Generated_Image_lypr6clypr6clypr.png';
+import extra16 from '@/assets/images/Gemini_Generated_Image_m9y9l5m9y9l5m9y9.png';
+import extra17 from '@/assets/images/Gemini_Generated_Image_n54p2en54p2en54p.png';
+import extra18 from '@/assets/images/Gemini_Generated_Image_qcvu2yqcvu2yqcvu.png';
+import extra19 from '@/assets/images/Gemini_Generated_Image_tthl4gtthl4gtthl.png';
+
 // Assets configuration
 const UNIVERSE_ASSETS: Record<string, string[]> = {
     'naruto': [
@@ -24,50 +45,26 @@ const UNIVERSE_ASSETS: Record<string, string[]> = {
         sasukeImg,
         sakuraImg,
         kakashiImg,
-        narutoImg, // Duplicates to fill 8 pairs if needed, or cycle
-        sasukeImg,
-        sakuraImg,
-        kakashiImg,
+        extra1, extra2, extra3, extra4 // Adding variety
     ],
     'demon-slayer': [
         demonSlayerImg,
         nezukoImg,
         zenitsuImg,
-        demonSlayerImg, // Need more assets for full variety, repeating for now
-        nezukoImg,
-        zenitsuImg,
-        demonSlayerImg,
-        nezukoImg,
+        extra5, extra6, extra7, extra8, extra9 // Adding variety
     ],
     'one-piece': [
         onePieceImg,
-        narutoImg, // Placeholder until more OP assets
-        demonSlayerImg,
-        dragonBallImg,
-        onePieceImg,
-        narutoImg,
-        demonSlayerImg,
-        dragonBallImg,
+        extra10, extra11, extra12, extra13, extra14, extra15, extra16
     ],
     'dragon-ball': [
         dragonBallImg,
-        narutoImg, // Placeholder until more DB assets
-        onePieceImg,
-        demonSlayerImg,
-        dragonBallImg,
-        narutoImg,
-        onePieceImg,
-        demonSlayerImg,
+        extra17, extra18, extra19, extra1, extra2, extra3, extra4 // Mixing some extras
     ],
     'multiverse': [
-        narutoImg,
-        sasukeImg,
-        demonSlayerImg,
-        nezukoImg,
-        onePieceImg,
-        dragonBallImg,
-        sakuraImg,
-        zenitsuImg,
+        narutoImg, sasukeImg, demonSlayerImg, nezukoImg, onePieceImg, dragonBallImg,
+        extra1, extra2, extra3, extra4, extra5, extra6, extra7, extra8, extra9,
+        extra10, extra11, extra12, extra13, extra14, extra15, extra16, extra17, extra18, extra19
     ]
 };
 
@@ -76,7 +73,7 @@ interface MemoryBoardProps {
     mode: string;
     onScoreUpdate: (points: number) => void;
     onGameFinish: (result: any) => void;
-    onMistake?: () => void;
+    onMistake?: (attempts: number) => void;
 }
 
 interface Card {
@@ -188,7 +185,7 @@ const MemoryBoard: React.FC<MemoryBoardProps> = ({ universe, mode, onScoreUpdate
         } else {
             // No match
             if (mode === 'survival') {
-                onMistake?.();
+                onMistake?.(attempts + 1);
             }
 
             setTimeout(() => {

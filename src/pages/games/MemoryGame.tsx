@@ -74,6 +74,32 @@ const MemoryGame: React.FC = () => {
         }
     };
 
+    const calculateRank = (finalScore: number, time: number, attempts: number, mode: GameMode, success: boolean) => {
+        if (!success) return { label: 'F', color: 'text-red-600', shadow: 'shadow-red-500/50' };
+
+        // Zen Mode always gets S for relaxing
+        if (mode === 'zen') return { label: 'S', color: 'text-cyan-400', shadow: 'shadow-cyan-500/50' };
+
+        // Survival Mode
+        if (mode === 'survival') {
+            if (lives === 5) return { label: 'S', color: 'text-yellow-400', shadow: 'shadow-yellow-500/50' };
+            if (lives >= 3) return { label: 'A', color: 'text-cyan-400', shadow: 'shadow-cyan-500/50' };
+            if (lives >= 1) return { label: 'B', color: 'text-green-400', shadow: 'shadow-green-500/50' };
+            return { label: 'C', color: 'text-white', shadow: 'shadow-white/50' };
+        }
+
+        // Speed Rush Mode
+        // Base thresholds for 8 pairs (16 cards)
+        // Perfect attempts = 8
+        const perfectAttempts = 8;
+
+        if (time < 45 && attempts <= perfectAttempts + 2) return { label: 'S', color: 'text-yellow-400', shadow: 'shadow-yellow-500/50' };
+        if (time < 60 && attempts <= perfectAttempts + 4) return { label: 'A', color: 'text-cyan-400', shadow: 'shadow-cyan-500/50' };
+        if (time < 90 || attempts <= perfectAttempts + 6) return { label: 'B', color: 'text-green-400', shadow: 'shadow-green-500/50' };
+        if (time < 120) return { label: 'C', color: 'text-white', shadow: 'shadow-white/50' };
+        return { label: 'D', color: 'text-gray-400', shadow: 'shadow-gray-500/50' };
+    };
+
     const handleGameFinish = (result: any) => {
         // Calculate final score based on time and mode
         let finalScore = result.score;
@@ -82,11 +108,13 @@ const MemoryGame: React.FC = () => {
             finalScore += timeBonus;
         }
 
-        setGameResult({ ...result, finalScore, time: timer });
+        const rank = calculateRank(finalScore, timer, result.attempts, selectedMode, result.success);
+
+        setGameResult({ ...result, finalScore, time: timer, rank });
         setGameState('finished');
     };
 
-    const handleMistake = () => {
+    const handleMistake = (attempts: number) => {
         if (selectedMode !== 'survival') return;
 
         // Damage Animation
@@ -96,7 +124,7 @@ const MemoryGame: React.FC = () => {
         setLives(prev => {
             const newLives = prev - 1;
             if (newLives <= 0) {
-                handleGameFinish({ score: score, attempts: 0, success: false }); // Game Over
+                handleGameFinish({ score: score, attempts: attempts, success: false }); // Game Over
             }
             return newLives;
         });
@@ -221,30 +249,28 @@ const MemoryGame: React.FC = () => {
                 <AnimatePresence>
                     {showSurvivalIntro && (
                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center pointer-events-none"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 1.2 }}
+                            className="absolute inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center pointer-events-none"
                         >
-                            <motion.div
-                                initial={{ scale: 0.5, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                exit={{ scale: 1.5, opacity: 0 }}
-                                transition={{ duration: 0.5, type: "spring" }}
-                                className="text-center"
-                            >
-                                <h2 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-500 to-red-500 animate-pulse font-heading tracking-tighter mb-4">
-                                    <GlitchText text="SURVIVAL MODE" />
-                                </h2>
-                                <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
+                            <div className="text-center">
+                                <motion.h1
+                                    initial={{ y: 50, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.5 }}
-                                    className="text-2xl md:text-3xl text-white/80 font-bold"
+                                    className="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-red-500 to-red-900 tracking-tighter drop-shadow-[0_0_30px_rgba(220,38,38,0.5)]"
                                 >
-                                    PRÊT ?
-                                </motion.div>
-                            </motion.div>
+                                    WAVE 1
+                                </motion.h1>
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                    className="text-white/50 text-xl uppercase tracking-[1em] mt-4"
+                                >
+                                    SURVIVAL MODE
+                                </motion.p>
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -316,18 +342,23 @@ const MemoryGame: React.FC = () => {
         );
     }
 
-    return (
-        <GameResultScreen
-            score={score}
-            rank={{ label: 'A', color: 'text-cyan-400', shadow: 'shadow-cyan-500/50' }} // Calculate real rank later
-            stats={[
-                { label: 'Temps', value: `${timer}s`, icon: <Timer className="w-4 h-4" />, color: 'text-cyan-400' },
-                { label: 'Score', value: `${score}`, icon: <Trophy className="w-4 h-4" />, color: 'text-yellow-400' }
-            ]}
-            onReplay={() => setGameState('intro')}
-            onQuit={() => navigate('/games')}
-        />
-    );
+    if (gameState === 'finished') {
+        return (
+            <GameResultScreen
+                score={gameResult?.finalScore || 0}
+                rank={gameResult?.rank || { label: '-', color: 'text-white', shadow: 'shadow-white/50' }}
+                stats={[
+                    { label: 'Temps', value: `${gameResult?.time || 0}s`, icon: <Timer className="w-4 h-4" />, color: 'text-cyan-400' },
+                    { label: 'Score', value: `${gameResult?.finalScore || 0}`, icon: <Trophy className="w-4 h-4" />, color: 'text-yellow-400' },
+                    { label: 'Essais', value: `${gameResult?.attempts || 0}`, icon: <Brain className="w-4 h-4" />, color: 'text-purple-400' }
+                ]}
+                onReplay={() => setGameState('intro')}
+                onQuit={() => navigate('/games')}
+            />
+        );
+    }
+
+    return null; // Should not reach here
 };
 
 export default MemoryGame;
