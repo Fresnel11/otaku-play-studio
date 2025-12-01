@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { API_ENDPOINTS } from '@/config/api';
 
-const API_URL = 'http://localhost:5000/api/games';
+const API_URL = API_ENDPOINTS.GAMES;
 
 export interface Question {
     _id: string;

@@ -10,6 +10,7 @@ import { ASSETS } from '@/constants/assets';
 const loginArt = ASSETS.IMAGES.LOGIN_ART;
 const mascotCity = ASSETS.IMAGES.MASCOT_CITY;
 import axios from "axios";
+import { API_ENDPOINTS } from '@/config/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post(`${API_ENDPOINTS.AUTH}/login`, {
         email,
         password
       });
