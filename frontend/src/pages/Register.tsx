@@ -11,6 +11,7 @@ const welcomeArt = ASSETS.IMAGES.REGISTER_ART;
 const ninjaArt = ASSETS.IMAGES.NINJA_CHARACTER;
 const heroineArt = ASSETS.IMAGES.BLACK_HEROINE;
 import axios from "axios";
+import { API_ENDPOINTS } from '@/config/api';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
+      const response = await axios.post(`${API_ENDPOINTS.AUTH}/register`, {
         firstname,
         lastname,
         username,
