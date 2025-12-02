@@ -3,18 +3,11 @@ import { Trophy, Medal, Crown, Search, Filter } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { cn } from "@/lib/utils";
 import { ASSETS } from '@/constants/assets';
-const mascotLeaderboard = ASSETS.IMAGES.MASCOT_LEADERBOARD;
+import { useState, useEffect } from "react";
+import { getGlobalLeaderboard } from "@/services/leaderboardService";
+import { toast } from "sonner";
 
-const leaderboardData = [
-    { rank: 1, name: "MasterOtaku", level: 42, score: 15420, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Master", winRate: "85%" },
-    { rank: 2, name: "Sasuke_99", level: 38, score: 12350, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sasuke", winRate: "78%" },
-    { rank: 3, name: "SakuraChan", level: 35, score: 11200, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sakura", winRate: "72%" },
-    { rank: 4, name: "KakashiSensei", level: 30, score: 9800, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kakashi", winRate: "65%" },
-    { rank: 5, name: "SuperOtaku", level: 5, score: 2400, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix", winRate: "66%", isUser: true },
-    { rank: 6, name: "NatsuDragneel", level: 28, score: 8500, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Natsu", winRate: "60%" },
-    { rank: 7, name: "LuffyPirate", level: 25, score: 7200, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Luffy", winRate: "55%" },
-    { rank: 8, name: "ZoroSwordsman", level: 24, score: 6900, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Zoro", winRate: "58%" },
-];
+const mascotLeaderboard = ASSETS.IMAGES.MASCOT_LEADERBOARD;
 
 const PodiumStep = ({ player, delay }: { player: any, delay: number }) => {
     const isFirst = player.rank === 1;
@@ -77,8 +70,46 @@ const PodiumStep = ({ player, delay }: { player: any, delay: number }) => {
 };
 
 const Leaderboard = () => {
-    const top3 = leaderboardData.slice(0, 3);
-    const rest = leaderboardData.slice(3);
+    const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+
+    useEffect(() => {
+        const fetchLeaderboard = async () => {
+            try {
+                setLoading(true);
+                const data = await getGlobalLeaderboard(20);
+
+                const transformedData = data.map((entry) => ({
+                    rank: entry.rank,
+                    name: entry.username,
+                    level: entry.level || 1,
+                    score: entry.bestScore,
+                    avatar: entry.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${entry.username}`,
+                    winRate: entry.totalGames > 0
+                        ? `${Math.round((entry.bestScore / entry.averageScore) * 100)}%`
+                        : "0%",
+                    isUser: false
+                }));
+
+                setLeaderboardData(transformedData);
+            } catch (error) {
+                console.error("Error fetching leaderboard:", error);
+                toast.error("Impossible de charger le classement");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchLeaderboard();
+    }, []);
+
+    const filteredData = leaderboardData.filter(player =>
+        player.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const top3 = filteredData.slice(0, 3);
+    const rest = filteredData.slice(3);
 
     return (
         <DashboardLayout>
@@ -104,6 +135,8 @@ const Leaderboard = () => {
                             <input
                                 type="text"
                                 placeholder="Rechercher..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full md:w-64 bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/10 transition-all"
                             />
                         </div>
@@ -114,61 +147,82 @@ const Leaderboard = () => {
                 </div>
 
                 {/* Podium Section */}
-                <div className="flex justify-center items-end gap-4 md:gap-12 mb-16 px-4 min-h-[400px]">
-                    {top3.map((player, index) => (
-                        <PodiumStep key={player.rank} player={player} delay={index * 0.2} />
-                    ))}
-                </div>
-
-                {/* List Section */}
-                <div className="bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-3xl overflow-hidden">
-                    <div className="grid grid-cols-12 gap-4 p-6 border-b border-white/5 text-sm font-medium text-white/40 uppercase tracking-wider">
-                        <div className="col-span-2 md:col-span-1 text-center">Rang</div>
-                        <div className="col-span-6 md:col-span-5">Joueur</div>
-                        <div className="col-span-2 md:col-span-2 text-center hidden md:block">Niveau</div>
-                        <div className="col-span-2 md:col-span-2 text-center hidden md:block">Win Rate</div>
-                        <div className="col-span-4 md:col-span-2 text-right">Score</div>
+                {loading ? (
+                    <div className="flex justify-center items-center min-h-[400px]">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+                            <p className="text-white/60">Chargement du classement...</p>
+                        </div>
                     </div>
-
-                    <div className="divide-y divide-white/5">
-                        {rest.map((player, index) => (
-                            <motion.div
-                                key={player.rank}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.5 + index * 0.05 }}
-                                className={cn(
-                                    "grid grid-cols-12 gap-4 p-6 items-center hover:bg-white/5 transition-colors cursor-pointer group",
-                                    player.isUser ? "bg-white/10 border-l-4 border-indigo-500" : ""
-                                )}
-                            >
-                                <div className="col-span-2 md:col-span-1 text-center font-bold text-white/60 group-hover:text-white">
-                                    #{player.rank}
-                                </div>
-                                <div className="col-span-6 md:col-span-5 flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full overflow-hidden bg-white/10 border border-white/10">
-                                        <img src={player.avatar} alt={player.name} className="w-full h-full object-cover" />
-                                    </div>
-                                    <span className={cn(
-                                        "font-medium text-white text-lg",
-                                        player.isUser ? "text-indigo-400" : ""
-                                    )}>
-                                        {player.name} {player.isUser && <span className="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full ml-2">Moi</span>}
-                                    </span>
-                                </div>
-                                <div className="col-span-2 md:col-span-2 text-center text-white/60 hidden md:block">
-                                    <span className="px-3 py-1 rounded-full bg-white/5 border border-white/5">Lvl {player.level}</span>
-                                </div>
-                                <div className="col-span-2 md:col-span-2 text-center text-white/60 hidden md:block">
-                                    {player.winRate}
-                                </div>
-                                <div className="col-span-4 md:col-span-2 text-right font-bold text-white text-lg">
-                                    {player.score.toLocaleString()}
-                                </div>
-                            </motion.div>
-                        ))}
+                ) : filteredData.length === 0 ? (
+                    <div className="flex justify-center items-center min-h-[400px]">
+                        <div className="text-center">
+                            <Trophy className="h-16 w-16 text-white/20 mx-auto mb-4" />
+                            <p className="text-white/60">Aucun joueur trouvé</p>
+                            {searchTerm && (
+                                <p className="text-white/40 text-sm mt-2">Essayez une autre recherche</p>
+                            )}
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <>
+                        <div className="flex justify-center items-end gap-4 md:gap-12 mb-16 px-4 min-h-[400px]">
+                            {top3.map((player, index) => (
+                                <PodiumStep key={player.rank} player={player} delay={index * 0.2} />
+                            ))}
+                        </div>
+
+                        {/* List Section */}
+                        <div className="bg-white/[0.02] backdrop-blur-xl border border-white/5 rounded-3xl overflow-hidden">
+                            <div className="grid grid-cols-12 gap-4 p-6 border-b border-white/5 text-sm font-medium text-white/40 uppercase tracking-wider">
+                                <div className="col-span-2 md:col-span-1 text-center">Rang</div>
+                                <div className="col-span-6 md:col-span-5">Joueur</div>
+                                <div className="col-span-2 md:col-span-2 text-center hidden md:block">Niveau</div>
+                                <div className="col-span-2 md:col-span-2 text-center hidden md:block">Win Rate</div>
+                                <div className="col-span-4 md:col-span-2 text-right">Score</div>
+                            </div>
+
+                            <div className="divide-y divide-white/5">
+                                {rest.map((player, index) => (
+                                    <motion.div
+                                        key={player.rank}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.5 + index * 0.05 }}
+                                        className={cn(
+                                            "grid grid-cols-12 gap-4 p-6 items-center hover:bg-white/5 transition-colors cursor-pointer group",
+                                            player.isUser ? "bg-white/10 border-l-4 border-indigo-500" : ""
+                                        )}
+                                    >
+                                        <div className="col-span-2 md:col-span-1 text-center font-bold text-white/60 group-hover:text-white">
+                                            #{player.rank}
+                                        </div>
+                                        <div className="col-span-6 md:col-span-5 flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full overflow-hidden bg-white/10 border border-white/10">
+                                                <img src={player.avatar} alt={player.name} className="w-full h-full object-cover" />
+                                            </div>
+                                            <span className={cn(
+                                                "font-medium text-white text-lg",
+                                                player.isUser ? "text-indigo-400" : ""
+                                            )}>
+                                                {player.name} {player.isUser && <span className="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full ml-2">Moi</span>}
+                                            </span>
+                                        </div>
+                                        <div className="col-span-2 md:col-span-2 text-center text-white/60 hidden md:block">
+                                            <span className="px-3 py-1 rounded-full bg-white/5 border border-white/5">Lvl {player.level}</span>
+                                        </div>
+                                        <div className="col-span-2 md:col-span-2 text-center text-white/60 hidden md:block">
+                                            {player.winRate}
+                                        </div>
+                                        <div className="col-span-4 md:col-span-2 text-right font-bold text-white text-lg">
+                                            {player.score.toLocaleString()}
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </DashboardLayout>
     );
