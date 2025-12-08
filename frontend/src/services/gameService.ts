@@ -61,10 +61,7 @@ export const startSurvivalGame = async (userId: string, category?: string): Prom
 };
 
 export const submitGame = async (
-    sessionId: string,
-    userId: string,
-    answers: { questionId: string; userAnswer: number; responseTime: number }[]
-): Promise<GameResult> => {
+sessionId: string, userId: string, finalScore: number, answers: { questionId: string; userAnswer: number; responseTime: number; }[]): Promise<GameResult> => {
     const response = await axios.post(
         `${API_URL}/speed-pulse/submit`,
         {
