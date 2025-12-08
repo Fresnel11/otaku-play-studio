@@ -1,0 +1,537 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, RotateCcw, Ghost, Sparkles, Flame, Skull, Shuffle } from 'lucide-react';
+import { GlassButton } from '@/components/ui/GlassButton';
+import { cn } from '@/lib/utils';
+import { startGame, submitGame } from '../../services/gameService';
+import { toast } from 'sonner';
+
+// --- Types ---
+type TileType = string;
+
+type Tile = {
+    id: string;
+    type: TileType;
+    x: number;
+    y: number;
+    z: number; // Layer
+    visible: boolean;
+};
+
+// --- Constants ---
+const TILE_TYPES = [
+    '🀀', '🀁', '🀂', '🀃', // Winds
+    '🀄', '🀅', '🀆', // Dragons
+    '🀇', '🀈', '🀉', '🀊', '🀋', '🀌', '🀍', '🀎', '🀏', // Man
+    '🀐', '🀑', '🀒', '🀓', '🀔', '🀕', '🀖', '🀗', '🀘', // Bamboo
+    '🀙', '🀚', '🀛', '🀜', '🀝', '🀞', '🀟', '🀠', '🀡', // Dots
+    '🀢', '🀣', '🀤', '🀥', '🀦', '🀧', '🀨', '🀩', // Flowers/Seasons
+];
+
+// Simplified Turtle Layout
+const LAYOUT_TEMPLATE = [
+    // Layer 0 (Base)
+    ...Array.from({ length: 30 }, (_, i) => ({ x: (i % 6) * 2 + 2, y: Math.floor(i / 6) * 2 + 2, z: 0 })),
+    // Layer 1
+    ...Array.from({ length: 16 }, (_, i) => ({ x: (i % 4) * 2 + 4, y: Math.floor(i / 4) * 2 + 4, z: 1 })),
+    // Layer 2
+    ...Array.from({ length: 4 }, (_, i) => ({ x: (i % 2) * 2 + 6, y: Math.floor(i / 2) * 2 + 6, z: 2 })),
+];
+
+const SpiritMahjong: React.FC = () => {
+    const navigate = useNavigate();
+    const [tiles, setTiles] = useState<Tile[]>([]);
+    const [selectedTile, setSelectedTile] = useState<Tile | null>(null);
+    const [score, setScore] = useState(0);
+    const [matches, setMatches] = useState(0);
+    const [particles, setParticles] = useState<{ id: number, x: number, y: number, type: 'match' | 'damage' | 'attack' }[]>([]);
+    const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
+    const [message, setMessage] = useState<string | null>(null);
+
+    // Battle Stats
+    const [playerHP, setPlayerHP] = useState(100);
+    const [yokaiHP, setYokaiHP] = useState(100);
+    const [attackTimer, setAttackTimer] = useState(0);
+
+    // Backend Integration
+    const [userId, setUserId] = useState<string | null>(null);
+    const [sessionId, setSessionId] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [gameResult, setGameResult] = useState<{ finalScore: number, xpEarned: number } | null>(null);
+
+    // Refs (Critical for avoiding stale closures in timers/callbacks)
+    const attackIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const scoreRef = useRef(score);
+    const gameStateRef = useRef(gameState);
+    const sessionIdRef = useRef(sessionId);
+    const userIdRef = useRef(userId);
+
+    // Sync Refs
+    useEffect(() => { scoreRef.current = score; }, [score]);
+    useEffect(() => { gameStateRef.current = gameState; }, [gameState]);
+    useEffect(() => { sessionIdRef.current = sessionId; }, [sessionId]);
+    useEffect(() => { userIdRef.current = userId; }, [userId]);
+
+    // Auth Check
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const userStr = localStorage.getItem('user');
+
+        if (!token || !userStr) {
+            toast.error("Connectez-vous pour jouer !");
+            navigate('/login');
+            return;
+        }
+
+        try {
+            const user = JSON.parse(userStr);
+            setUserId(user._id || user.id);
+        } catch (e) {
+            navigate('/login');
+        }
+    }, [navigate]);
+
+    // Initialize Game
+    useEffect(() => {
+        if (userId) {
+            startNewGame();
+        }
+        return () => stopAttackTimer();
+    }, [userId]);
+
+    // Check for deadlocks
+    useEffect(() => {
+        if (gameState === 'playing' && tiles.length > 0) {
+            const visibleTiles = tiles.filter(t => t.visible);
+            if (visibleTiles.length > 0 && !hasAvailableMoves(visibleTiles)) {
+                setMessage("Plus de mouvements ! Mélange des esprits...");
+                setTimeout(() => {
+                    shuffleBoard();
+                    setMessage(null);
+                }, 2000);
+            }
+        }
+    }, [tiles, gameState]);
+
+    // Attack Timer Logic
+    useEffect(() => {
+        if (gameState !== 'playing') {
+            stopAttackTimer();
+            return;
+        }
+
+        stopAttackTimer(); // Clear existing
+
+        const interval = setInterval(() => {
+            setAttackTimer(prev => {
+                if (prev >= 100) return 100;
+                // Increase speed slightly
+                return prev + 2; // 5 seconds to fill
+            });
+        }, 100);
+
+        attackIntervalRef.current = interval;
+        return () => stopAttackTimer();
+    }, [gameState]);
+
+    // Trigger Attack
+    useEffect(() => {
+        if (attackTimer >= 100) {
+            handleYokaiAttack();
+            setAttackTimer(0);
+        }
+    }, [attackTimer]);
+
+    const stopAttackTimer = () => {
+        if (attackIntervalRef.current) {
+            clearInterval(attackIntervalRef.current);
+            attackIntervalRef.current = null;
+        }
+    };
+
+    // Define endGame first
+    const endGame = async (result: 'won' | 'lost') => {
+        setGameState(result);
+        stopAttackTimer();
+
+        const currentSessionId = sessionIdRef.current;
+        const currentUserId = userIdRef.current;
+
+        if (currentSessionId && currentUserId) {
+            setIsSubmitting(true);
+            try {
+                const currentScore = scoreRef.current;
+                const finalScore = result === 'won' ? currentScore + 1000 : currentScore;
+                const response = await submitGame(currentSessionId, currentUserId, finalScore, []);
+                setGameResult(response);
+                toast.success("Score enregistré !");
+            } catch (error) {
+                console.error("Failed to submit score", error);
+                toast.error("Erreur lors de l'enregistrement du score.");
+            } finally {
+                setIsSubmitting(false);
+            }
+        }
+    };
+
+    const handleYokaiAttack = useCallback(() => {
+        setPlayerHP(prev => {
+            const newHP = prev - 10;
+            if (newHP <= 0) {
+                // Use setTimeout to break render cycle
+                setTimeout(() => endGame('lost'), 0);
+            }
+            return newHP;
+        });
+
+        const id = Date.now();
+        setParticles(prev => [...prev, { id, x: window.innerWidth / 2, y: window.innerHeight / 2, type: 'attack' }]);
+        setTimeout(() => setParticles(prev => prev.filter(p => p.id !== id)), 1000);
+    }, []);
+
+    const startNewGame = async () => {
+        if (!userId) return;
+
+        try {
+            const session = await startGame(userId, 'spirit-mahjong');
+            setSessionId(session.sessionId);
+
+            // Prepare Deck
+            const layout = LAYOUT_TEMPLATE.slice(0, 50);
+            const numPairs = layout.length / 2;
+            let deck: string[] = [];
+            for (let i = 0; i < numPairs; i++) {
+                const type = TILE_TYPES[Math.floor(Math.random() * TILE_TYPES.length)];
+                deck.push(type, type);
+            }
+            deck.sort(() => Math.random() - 0.5);
+
+            const newTiles = layout.map((pos, index) => ({
+                id: `tile-${index}`,
+                type: deck[index],
+                x: pos.x,
+                y: pos.y,
+                z: pos.z,
+                visible: true
+            }));
+
+            setTiles(newTiles);
+            setScore(0);
+            setMatches(0);
+            setPlayerHP(100);
+            setYokaiHP(100);
+            setAttackTimer(0);
+            setGameState('playing');
+            setGameResult(null);
+            setSelectedTile(null);
+            setMessage(null);
+        } catch (error) {
+            console.error(error);
+            toast.error("Impossible de démarrer la partie.");
+        }
+    };
+
+    const isTileFree = (tile: Tile, currentTiles: Tile[]) => {
+        if (!tile.visible) return false;
+
+        // Check Top
+        const hasTop = currentTiles.some(t =>
+            t.visible && t.z === tile.z + 1 &&
+            Math.abs(t.x - tile.x) < 2 && Math.abs(t.y - tile.y) < 2
+        );
+        if (hasTop) return false;
+
+        // Check Left
+        const hasLeft = currentTiles.some(t =>
+            t.visible && t.z === tile.z &&
+            t.x === tile.x - 2 && Math.abs(t.y - tile.y) < 2
+        );
+
+        // Check Right
+        const hasRight = currentTiles.some(t =>
+            t.visible && t.z === tile.z &&
+            t.x === tile.x + 2 && Math.abs(t.y - tile.y) < 2
+        );
+
+        return !hasLeft || !hasRight;
+    };
+
+    const hasAvailableMoves = (currentTiles: Tile[]) => {
+        const freeTiles = currentTiles.filter(t => t.visible && isTileFree(t, currentTiles));
+        const typeCounts: Record<string, number> = {};
+
+        for (const tile of freeTiles) {
+            if (typeCounts[tile.type]) return true; // Found a pair
+            typeCounts[tile.type] = 1;
+        }
+        return false;
+    };
+
+    const shuffleBoard = () => {
+        setTiles(prev => {
+            const visibleTiles = prev.filter(t => t.visible);
+            const hiddenTiles = prev.filter(t => !t.visible);
+
+            const types = visibleTiles.map(t => t.type);
+            types.sort(() => Math.random() - 0.5);
+
+            const shuffledVisible = visibleTiles.map((t, i) => ({
+                ...t,
+                type: types[i]
+            }));
+
+            return [...hiddenTiles, ...shuffledVisible];
+        });
+    };
+
+    const handleTileClick = (tile: Tile, e: React.MouseEvent) => {
+        if (gameState !== 'playing') return;
+        if (!isTileFree(tile, tiles)) return;
+
+        if (selectedTile?.id === tile.id) {
+            setSelectedTile(null);
+            return;
+        }
+
+        if (selectedTile) {
+            if (selectedTile.type === tile.type) {
+                // Match!
+                setTiles(prev => prev.map(t =>
+                    (t.id === tile.id || t.id === selectedTile.id) ? { ...t, visible: false } : t
+                ));
+                setScore(s => s + 100);
+                setMatches(m => m + 1);
+                setSelectedTile(null);
+
+                setAttackTimer(0);
+
+                setYokaiHP(prev => {
+                    const damage = 100 / 25; // 25 pairs to win
+                    const newHP = prev - damage;
+                    if (newHP <= 0.1) endGame('won');
+                    return newHP;
+                });
+
+                spawnParticles(e.clientX, e.clientY, 'match');
+                spawnParticles(window.innerWidth / 2, 100, 'damage');
+
+            } else {
+                setSelectedTile(tile);
+            }
+        } else {
+            setSelectedTile(tile);
+        }
+    };
+
+    const spawnParticles = (x: number, y: number, type: 'match' | 'damage' | 'attack') => {
+        const id = Date.now() + Math.random();
+        setParticles(prev => [...prev, { id, x, y, type }]);
+        setTimeout(() => setParticles(prev => prev.filter(p => p.id !== id)), 1000);
+    };
+
+    return (
+        <div className="min-h-screen bg-[#050510] text-white font-sans overflow-hidden relative flex flex-col items-center justify-center">
+            {/* Background Atmosphere */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#1a1a2e_0%,_#000000_100%)] z-0" />
+            <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] animate-pulse z-0" />
+
+            {/* Floating Spirits */}
+            <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl animate-bounce duration-[5000ms]" />
+            <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl animate-bounce duration-[7000ms]" />
+
+            {/* Battle UI (Top) */}
+            <div className="absolute top-20 left-0 w-full z-40 px-4 md:px-20 flex justify-between items-center">
+                {/* Player HP */}
+                <div className="flex flex-col items-start w-1/3">
+                    <div className="text-sm font-bold text-blue-300 mb-1">YOU</div>
+                    <div className="w-full h-4 bg-gray-800 rounded-full overflow-hidden border border-blue-900">
+                        <motion.div
+                            className="h-full bg-blue-500"
+                            animate={{ width: `${playerHP}%` }}
+                        />
+                    </div>
+                </div>
+
+                {/* VS / Timer */}
+                <div className="flex flex-col items-center w-1/3">
+                    <div className="w-16 h-16 bg-red-900/20 rounded-full flex items-center justify-center border-2 border-red-500/50 mb-2 relative overflow-hidden">
+                        <Ghost className="w-8 h-8 text-red-500 animate-pulse" />
+                    </div>
+                    <div className="w-32 h-2 bg-gray-900 rounded-full overflow-hidden">
+                        <motion.div
+                            className="h-full bg-red-600"
+                            animate={{ width: `${attackTimer}%` }}
+                        />
+                    </div>
+                    <div className="text-xs text-red-500 mt-1 font-bold">ATTACK IMMINENT</div>
+                </div>
+
+                {/* Yokai HP */}
+                <div className="flex flex-col items-end w-1/3">
+                    <div className="text-sm font-bold text-red-300 mb-1">YOKAI</div>
+                    <div className="w-full h-4 bg-gray-800 rounded-full overflow-hidden border border-red-900">
+                        <motion.div
+                            className="h-full bg-red-600"
+                            animate={{ width: `${yokaiHP}%` }}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* UI Header */}
+            <div className="absolute top-0 left-0 w-full z-50 p-6 flex justify-between items-start">
+                <GlassButton onClick={() => navigate('/games')} size="icon" variant="glass">
+                    <ArrowLeft className="w-6 h-6" />
+                </GlassButton>
+
+                <div className="flex flex-col items-end">
+                    <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-heading">
+                        {score}
+                    </div>
+                </div>
+            </div>
+
+            {/* Message Overlay (Shuffle etc) */}
+            <AnimatePresence>
+                {message && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-black/80 px-8 py-4 rounded-xl border border-blue-500/50 text-blue-200 font-bold text-xl backdrop-blur-md"
+                    >
+                        <div className="flex items-center gap-2">
+                            <Shuffle className="w-5 h-5 animate-spin" /> {message}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Game Board */}
+            <div className="relative w-[800px] h-[600px] z-10 transform scale-75 md:scale-100 transition-transform mt-20">
+                <AnimatePresence>
+                    {tiles.map((tile) => {
+                        if (!tile.visible) return null;
+
+                        const isSelected = selectedTile?.id === tile.id;
+                        const isFree = isTileFree(tile, tiles);
+
+                        return (
+                            <motion.button
+                                key={tile.id}
+                                layoutId={tile.id}
+                                initial={{ opacity: 0, scale: 0, y: -100 }}
+                                animate={{
+                                    opacity: 1,
+                                    scale: 1,
+                                    y: isSelected ? -10 : 0,
+                                    filter: isFree ? 'brightness(1)' : 'brightness(0.5) grayscale(0.5)'
+                                }}
+                                exit={{
+                                    opacity: 0,
+                                    scale: 1.5,
+                                    y: -200,
+                                    rotate: Math.random() * 90 - 45,
+                                    filter: 'blur(10px)'
+                                }}
+                                transition={{ duration: 0.4 }}
+                                onClick={(e) => handleTileClick(tile, e)}
+                                disabled={!isFree}
+                                className={cn(
+                                    "absolute w-16 h-20 rounded-lg flex items-center justify-center text-4xl shadow-xl transition-all duration-200",
+                                    "bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-900 border-b-4 border-r-4 border-indigo-900/30",
+                                    isSelected && "ring-4 ring-blue-400 ring-offset-2 ring-offset-black z-50 brightness-110",
+                                    !isFree && "cursor-not-allowed opacity-80"
+                                )}
+                                style={{
+                                    left: tile.x * 35 + 100,
+                                    top: tile.y * 40 + 50,
+                                    zIndex: tile.z * 10 + (isSelected ? 100 : 0),
+                                }}
+                            >
+                                <span className="drop-shadow-md">{tile.type}</span>
+                                {isFree && (
+                                    <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 hover:opacity-100 transition-opacity" />
+                                )}
+                            </motion.button>
+                        );
+                    })}
+                </AnimatePresence>
+            </div>
+
+            {/* Game Over / Win Screens */}
+            {(gameState === 'won' || gameState === 'lost') && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md">
+                    <div className="text-center p-8 border-2 border-white/10 rounded-2xl bg-white/5 backdrop-blur-xl min-w-[400px]">
+                        {gameState === 'won' ? (
+                            <>
+                                <h1 className="text-6xl font-bold text-blue-400 mb-4 drop-shadow-[0_0_15px_rgba(59,130,246,0.8)]">
+                                    YOKAI PURIFIED
+                                </h1>
+                                <p className="text-blue-200 text-xl mb-8">The temple is safe once more.</p>
+                            </>
+                        ) : (
+                            <>
+                                <h1 className="text-6xl font-bold text-red-600 mb-4 drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]">
+                                    DEFEAT
+                                </h1>
+                                <p className="text-red-200 text-xl mb-8">The spirits have consumed you.</p>
+                            </>
+                        )}
+
+                        {isSubmitting ? (
+                            <p className="text-sm text-blue-300 mb-4 animate-pulse">Enregistrement du score...</p>
+                        ) : gameResult && (
+                            <div className="mb-8 space-y-2 bg-black/30 p-4 rounded-xl border border-white/10">
+                                <div className="flex justify-between items-center text-xl">
+                                    <span className="text-gray-400">Score Final</span>
+                                    <span className="font-bold text-white">{gameResult.finalScore}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-xl">
+                                    <span className="text-gray-400">XP Gagné</span>
+                                    <span className="font-bold text-yellow-400">+{gameResult.xpEarned} XP</span>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex gap-4 justify-center">
+                            <GlassButton onClick={() => navigate('/games')} variant="glass" className="bg-red-500/20 hover:bg-red-500/40 text-red-200">
+                                <ArrowLeft className="w-5 h-5 mr-2" /> Quitter
+                            </GlassButton>
+                            <GlassButton onClick={startNewGame} size="xl" className="bg-blue-600/80 hover:bg-blue-500">
+                                <RotateCcw className="w-5 h-5 mr-2" /> Rejouer
+                            </GlassButton>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Particles */}
+            {particles.map(p => (
+                <motion.div
+                    key={p.id}
+                    initial={{ opacity: 1, scale: 0, x: p.x, y: p.y }}
+                    animate={{
+                        opacity: 0,
+                        scale: p.type === 'attack' ? 5 : 2,
+                        y: p.y - 100
+                    }}
+                    transition={{ duration: 0.8 }}
+                    className={cn(
+                        "fixed pointer-events-none z-50",
+                        p.type === 'match' && "text-blue-400",
+                        p.type === 'damage' && "text-red-400 font-bold text-4xl",
+                        p.type === 'attack' && "text-red-600"
+                    )}
+                >
+                    {p.type === 'match' && <Sparkles className="w-8 h-8 fill-current" />}
+                    {p.type === 'damage' && "-HP"}
+                    {p.type === 'attack' && <Skull className="w-16 h-16 fill-current" />}
+                </motion.div>
+            ))}
+        </div>
+    );
+};
+
+export default SpiritMahjong;

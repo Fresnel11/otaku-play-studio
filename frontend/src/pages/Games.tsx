@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Gamepad2, Sparkles, Trophy, Users, Brain, Zap, Play, Lock, Skull } from "lucide-react";
+import { Gamepad2, Sparkles, Trophy, Users, Brain, Zap, Play, Lock, Skull, Ghost } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +17,30 @@ const Games = () => {
     const navigate = useNavigate();
 
     const games = [
+        {
+            id: -2,
+            title: "Spirit Mahjong",
+            description: "Apaisez les esprits en assemblant les tuiles sacrées dans ce Mahjong mystique.",
+            icon: Ghost,
+            image: "/assets/games/spirit_mahjong_cover.png",
+            color: "from-indigo-900 to-purple-800",
+            action: () => navigate("/games/spirit-mahjong"),
+            available: true,
+            difficulty: "Moyen",
+            players: "Solo"
+        },
+        {
+            id: -1,
+            title: "Ink Clash",
+            description: "Combats de rythme intenses au cœur d'une planche de manga vivante.",
+            icon: Zap,
+            image: "/assets/games/ink_clash_cover.png",
+            color: "from-gray-900 to-gray-600",
+            action: () => navigate("/games/ink-clash"),
+            available: true,
+            difficulty: "Expert",
+            players: "Solo"
+        },
         {
             id: 1,
             title: "Quiz Anime Rapide",

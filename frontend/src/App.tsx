@@ -20,37 +20,41 @@ import SpeedPulseGame from "./pages/games/SpeedPulseGame";
 import SurvivalGame from "./pages/games/SurvivalGame";
 import QuizGallery from "./pages/games/QuizGallery";
 import MemoryGame from "./pages/games/MemoryGame";
+import InkClash from "./pages/games/InkClash";
+import SpiritMahjong from "./pages/games/SpiritMahjong";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/games" element={<Games />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/quiz" element={<QuizGame />} />
-          <Route path="/score" element={<Score />} />
-          <Route path="/games/quiz" element={<QuizGallery />} />
-          <Route path="/games/quiz/speed-pulse" element={<SpeedPulseGame />} />
-          <Route path="/games/memory" element={<MemoryGame />} />
-          <Route path="/games/survival" element={<SurvivalGame />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </TooltipProvider>
-      <Analytics />
-    </BrowserRouter>
-  </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+            <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <Routes>
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/games" element={<Games />} />
+                    <Route path="/leaderboard" element={<Leaderboard />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/quiz" element={<QuizGame />} />
+                    <Route path="/score" element={<Score />} />
+                    <Route path="/games/quiz" element={<QuizGallery />} />
+                    <Route path="/games/quiz/speed-pulse" element={<SpeedPulseGame />} />
+                    <Route path="/games/memory" element={<MemoryGame />} />
+                    <Route path="/games/survival" element={<SurvivalGame />} />
+                    <Route path="/games/ink-clash" element={<InkClash />} />
+                    <Route path="/games/spirit-mahjong" element={<SpiritMahjong />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
+            </TooltipProvider>
+            <Analytics />
+        </BrowserRouter>
+    </QueryClientProvider>
 );
 
 export default App;
